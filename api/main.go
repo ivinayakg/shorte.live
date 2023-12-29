@@ -3,17 +3,19 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 
+	"example.com/go/url-shortner/middleware"
+	"example.com/go/url-shortner/models"
 	"example.com/go/url-shortner/routes"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
+	"github.com/uptrace/bun"
 )
 
-func setupRoutes(app *fiber.App) {
-	app.Get("/:url", routes.ResolveURL)
-	app.Post("/api/v1", routes.ShortenURL)
+func setupRoutes(router *mux.Router, db *bun.DB) {
+	routes.UserRoutes(router.PathPrefix("/user").Subrouter())
 }
 
 func main() {
@@ -21,10 +23,11 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	app := fiber.New()
-	app.Use(logger.New())
+	db, _ := models.ConnectToDB()
+	r := mux.NewRouter()
+	r.Use(middleware.LogMW)
 
-	setupRoutes(app)
+	setupRoutes(r, db)
 
-	log.Fatal(app.Listen(os.Getenv("APP_PORT")))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf("localhost:%v", os.Getenv("PORT")), r))
 }
