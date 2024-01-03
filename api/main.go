@@ -6,15 +6,14 @@ import (
 	"net/http"
 	"os"
 
+	"example.com/go/url-shortner/helpers"
 	"example.com/go/url-shortner/middleware"
-	"example.com/go/url-shortner/models"
 	"example.com/go/url-shortner/routes"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
-	"github.com/uptrace/bun"
 )
 
-func setupRoutes(router *mux.Router, db *bun.DB) {
+func setupRoutes(router *mux.Router, db *helpers.DB) {
 	routes.UserRoutes(router.PathPrefix("/user").Subrouter())
 }
 
@@ -23,7 +22,7 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	db, _ := models.ConnectToDB()
+	db := helpers.CreateDBInstance()
 	r := mux.NewRouter()
 	r.Use(middleware.LogMW)
 
