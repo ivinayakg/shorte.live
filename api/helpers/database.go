@@ -16,8 +16,10 @@ type DB struct {
 	Tracker *mongo.Collection
 }
 
-func CreateDBInstance() *DB {
-	connectionString := os.Getenv("DB_URI")
+var CurrentDb *DB
+
+func CreateDBInstance() {
+	connectionString := os.Getenv("DB_URL")
 	dbName := os.Getenv("DB_NAME")
 	userCollName := os.Getenv("DB_USER_COLLECTION_NAME")
 	urlCollName := os.Getenv("DB_URL_COLLECTION_NAME")
@@ -27,13 +29,13 @@ func CreateDBInstance() *DB {
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
 		log.Fatalf("Error connecting to MongoDB: %v", err)
-		return nil
+		return
 	}
 
 	err = client.Ping(context.TODO(), nil)
 	if err != nil {
 		log.Fatalf("Error pinging MongoDB: %v", err)
-		return nil
+		return
 	}
 
 	fmt.Println("Connected to MongoDB")
@@ -42,5 +44,5 @@ func CreateDBInstance() *DB {
 	urlCollection := client.Database(dbName).Collection(urlCollName)
 	trackerCollection := client.Database(dbName).Collection(trackerCollName)
 
-	return &DB{User: userCollection, Url: urlCollection, Tracker: trackerCollection}
+	CurrentDb = &DB{User: userCollection, Url: urlCollection, Tracker: trackerCollection}
 }

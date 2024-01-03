@@ -13,7 +13,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func setupRoutes(router *mux.Router, db *helpers.DB) {
+func setupRoutes(router *mux.Router) {
 	routes.UserRoutes(router.PathPrefix("/user").Subrouter())
 }
 
@@ -22,11 +22,11 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	db := helpers.CreateDBInstance()
 	r := mux.NewRouter()
+	helpers.CreateDBInstance()
 	r.Use(middleware.LogMW)
 
-	setupRoutes(r, db)
+	setupRoutes(r)
 
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("localhost:%v", os.Getenv("PORT")), r))
 }

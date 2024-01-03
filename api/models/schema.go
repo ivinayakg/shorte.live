@@ -3,16 +3,14 @@ package models
 import (
 	"time"
 
-	"github.com/uptrace/bun"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type User struct {
-	bun.BaseModel `bun:"table:users"`
-
-	Name      string `bun:"name, notnull"`
-	Email     string `bun:"email, notnull"`
-	Picture   string `bun:"picture, notnull"`
-	Token     string
-	ID        string    `bun:"id,pk,type:uuid, default:gen_random_uuid()"`
-	CreatedAt time.Time `bun:"created_at, notnull"`
+	Name      string             `json:"name" validate:"required"`
+	Email     string             `json:"email" validate:"required"`
+	Picture   string             `json:"picture" validate:"required"`
+	Token     string             `json:"token" bson:"-"`
+	ID        primitive.ObjectID `json:"_id,omitempty"  bson:"_id,omitempty"`
+	CreatedAt time.Time          `json:"created_at" validate:"required"`
 }
