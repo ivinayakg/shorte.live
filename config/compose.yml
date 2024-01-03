@@ -6,11 +6,8 @@ services:
     ports:
       - "6379:6379"
 
-  postgres:
-    image: "postgres:latest"
+  mongodb:
+    image: mongo:latest
+    container_name: tiny-url-mongodb
     ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_DB: urlshortner
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: urlshortnerpp
+      - "27017:27017"
