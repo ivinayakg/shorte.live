@@ -2,7 +2,6 @@ package utils
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"time"
@@ -54,7 +53,7 @@ func VerifyJwt(tokenString string) (*map[string]string, error) {
 	})
 
 	if err != nil {
-		log.Fatal(err)
+		return nil, fmt.Errorf("failed: %v", err)
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok {

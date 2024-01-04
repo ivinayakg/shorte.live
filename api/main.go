@@ -15,6 +15,7 @@ import (
 
 func setupRoutes(router *mux.Router) {
 	routes.UserRoutes(router.PathPrefix("/user").Subrouter())
+	routes.URLRoutes(router.PathPrefix("/url").Subrouter())
 }
 
 func main() {
