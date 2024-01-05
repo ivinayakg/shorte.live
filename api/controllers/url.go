@@ -11,6 +11,8 @@ import (
 	"example.com/go/url-shortner/middleware"
 	"example.com/go/url-shortner/models"
 	"github.com/asaskevich/govalidator"
+	"github.com/gorilla/mux"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type ShortenURLRequest struct {
@@ -30,7 +32,7 @@ func ShortenURL(w http.ResponseWriter, r *http.Request) {
 	body := new(ShortenURLRequest)
 
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		helpers.SendJSONError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -51,13 +53,13 @@ func ShortenURL(w http.ResponseWriter, r *http.Request) {
 
 	// check if the input is an actual URL
 	if !govalidator.IsURL(body.URL) {
-		http.Error(w, fmt.Errorf("invalid url").Error(), http.StatusBadRequest)
+		helpers.SendJSONError(w, http.StatusBadRequest, fmt.Errorf("invalid url").Error())
 		return
 	}
 
 	// check for domain error
 	if !helpers.RemoverDomainError(body.URL) {
-		http.Error(w, fmt.Errorf("invalid url").Error(), http.StatusBadRequest)
+		helpers.SendJSONError(w, http.StatusBadRequest, fmt.Errorf("invalid url").Error())
 		return
 	}
 
@@ -77,7 +79,7 @@ func ShortenURL(w http.ResponseWriter, r *http.Request) {
 
 	tinyUrl, err := models.CreateURL(userData, body.CustomShort, body.URL, body.Expiry)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		helpers.SendJSONError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -99,7 +101,27 @@ func ShortenURL(w http.ResponseWriter, r *http.Request) {
 	// ttl, _ := r2.TTL(database.Ctx, c.IP()).Result()
 	// resp.XRateLimitReset = ttl / time.Nanosecond / time.Minute
 
-	resp.CustomShort = os.Getenv("DOMAIN") + "/" + tinyUrl.Short
+	resp.CustomShort = os.Getenv("DOMAIN") + "/url/" + tinyUrl.Short
 	helpers.SetHeaders("post", w, http.StatusCreated)
 	json.NewEncoder(w).Encode(resp)
+}
+
+func ResolveURL(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	urlShort := vars["short"]
+
+	url, err := models.GetURL(urlShort)
+	if err != nil && err != mongo.ErrNoDocuments {
+		helpers.SendJSONError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+
+	currentTime := time.Now()
+	if err == mongo.ErrNoDocuments || currentTime.After(url.Expiry) {
+		notFoundUrl := os.Getenv("DOMAIN") + "/not-found"
+		http.Redirect(w, r, notFoundUrl, http.StatusMovedPermanently)
+	}
+
+	http.Redirect(w, r, url.Destination, http.StatusMovedPermanently)
 }

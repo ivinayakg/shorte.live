@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 
+	"example.com/go/url-shortner/helpers"
 	"example.com/go/url-shortner/middleware"
 	"example.com/go/url-shortner/models"
 	"example.com/go/url-shortner/utils"
@@ -29,13 +30,14 @@ func CallbackSignInWithGoogle(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println("Recovered from panic:", r)
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			helpers.SendJSONError(w, http.StatusInternalServerError, "Internal Server Error")
+			return
 		}
 	}()
 
 	if err := r.ParseForm(); err != nil {
 		fmt.Println("Error parsing form:", err)
-		http.Error(w, "Bad Request", http.StatusBadRequest)
+		helpers.SendJSONError(w, http.StatusBadRequest, "Bad Request")
 		return
 	}
 
@@ -58,7 +60,7 @@ func CallbackSignInWithGoogle(w http.ResponseWriter, r *http.Request) {
 	resp, err := http.PostForm(accessTokenURI, params)
 	if err != nil {
 		fmt.Println("Error making POST request:", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		helpers.SendJSONError(w, http.StatusInternalServerError, "Internal Server Error")
 		return
 	}
 	defer resp.Body.Close()
@@ -66,7 +68,7 @@ func CallbackSignInWithGoogle(w http.ResponseWriter, r *http.Request) {
 	var tokenData map[string]interface{}
 	if err := json.NewDecoder(resp.Body).Decode(&tokenData); err != nil {
 		fmt.Println("Error decoding token data:", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		helpers.SendJSONError(w, http.StatusInternalServerError, "Internal Server Error")
 		return
 	}
 
@@ -75,7 +77,7 @@ func CallbackSignInWithGoogle(w http.ResponseWriter, r *http.Request) {
 	resp, err = http.Get("https://www.googleapis.com" + userInfoURI)
 	if err != nil {
 		fmt.Println("Error making GET request:", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		helpers.SendJSONError(w, http.StatusInternalServerError, "Internal Server Error")
 		return
 	}
 	defer resp.Body.Close()
@@ -83,7 +85,7 @@ func CallbackSignInWithGoogle(w http.ResponseWriter, r *http.Request) {
 	var googleProfile map[string]interface{}
 	if err := json.NewDecoder(resp.Body).Decode(&googleProfile); err != nil {
 		fmt.Println("Error decoding Google profile:", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		helpers.SendJSONError(w, http.StatusInternalServerError, "Internal Server Error")
 		return
 	}
 	fmt.Println(googleProfile)
@@ -94,6 +96,8 @@ func CallbackSignInWithGoogle(w http.ResponseWriter, r *http.Request) {
 		if err != mongo.ErrNoDocuments {
 			return
 		}
+		helpers.SendJSONError(w, http.StatusInternalServerError, "Internal Server Error")
+		return
 	}
 
 	if user != nil {
@@ -103,6 +107,7 @@ func CallbackSignInWithGoogle(w http.ResponseWriter, r *http.Request) {
 	} else {
 		user, err = models.CreateUser(googleProfile["email"].(string), googleProfile["name"].(string), googleProfile["picture"].(string))
 		if err != nil {
+			helpers.SendJSONError(w, http.StatusInternalServerError, "Internal Server Error")
 			return
 		}
 		token, _ := utils.CreateJWT(user)
