@@ -8,7 +8,7 @@ import (
 
 func UserRoutes(r *mux.Router) {
 	r.HandleFunc("/sign_in_with_google", controllers.SignInWithGoogle).Methods("GET")
-	r.HandleFunc("/google/callback", controllers.CallbackSignInWithGoogle).Methods("POST")
+	r.HandleFunc("/google/callback", controllers.CallbackSignInWithGoogle).Methods("GET")
 
 	protectedR := r.NewRoute().Subrouter()
 	protectedR.Use(middleware.Authentication)

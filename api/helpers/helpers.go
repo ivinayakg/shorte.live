@@ -1,10 +1,15 @@
 package helpers
 
 import (
+	"encoding/json"
 	"net/http"
 	"os"
 	"strings"
 )
+
+type ErrorResponse struct {
+	Error string `json:"error"`
+}
 
 var methodChoices = map[string]string{
 	"get":   "GET",
@@ -49,4 +54,11 @@ func SetHeaders(type_ string, w http.ResponseWriter, status int) {
 		w.Header().Set("Access-Control-Allow-Methods", method)
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	}
+}
+
+func SendJSONError(w http.ResponseWriter, statusCode int, errorMessage string) {
+	errorResponse := ErrorResponse{Error: errorMessage}
+	w.Header().Set("content-Type", "application/json")
+	w.WriteHeader(statusCode)
+	json.NewEncoder(w).Encode(errorResponse)
 }
