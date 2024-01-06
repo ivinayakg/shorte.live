@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"example.com/go/url-shortner/helpers"
 	"example.com/go/url-shortner/models"
 	"example.com/go/url-shortner/utils"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -20,7 +21,7 @@ func Authentication(next http.Handler) http.Handler {
 		tokenHeader := strings.Split(r.Header.Get("Authorization"), "Bearer ")
 		if len(tokenHeader) < 2 {
 			errMsg := "Authentication error!, Provide valid auth token"
-			http.Error(w, errMsg, http.StatusForbidden)
+			helpers.SendJSONError(w, http.StatusForbidden, errMsg)
 			log.Println(errMsg)
 			return
 		}
@@ -28,20 +29,21 @@ func Authentication(next http.Handler) http.Handler {
 
 		verifyUserData, err := utils.VerifyJwt(token)
 		if err != nil {
-			errMsg := "Authentication error!"
-			http.Error(w, errMsg, http.StatusForbidden)
+			errMsg := err.Error()
+			helpers.SendJSONError(w, http.StatusForbidden, errMsg)
 			log.Println(errMsg)
 			return
 		}
 
 		user, err := models.GetUser((*verifyUserData)["email"])
 		if err != nil {
+			errMsg := err.Error()
 			if err != mongo.ErrNoDocuments {
-				errMsg := "Authentication error!"
-				http.Error(w, errMsg, http.StatusForbidden)
-				log.Println(errMsg)
-				return
+				errMsg = "Authentication error!"
 			}
+			helpers.SendJSONError(w, http.StatusForbidden, errMsg)
+			log.Println(errMsg)
+			return
 		}
 
 		user.Token = token
