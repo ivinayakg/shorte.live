@@ -62,3 +62,12 @@ func SendJSONError(w http.ResponseWriter, statusCode int, errorMessage string) {
 	w.WriteHeader(statusCode)
 	json.NewEncoder(w).Encode(errorResponse)
 }
+
+func ContainsString(arr *[]string, target *string) bool {
+	for _, s := range *arr {
+		if s == *target {
+			return true
+		}
+	}
+	return false
+}

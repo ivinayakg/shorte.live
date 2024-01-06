@@ -13,5 +13,8 @@ func URLRoutes(r *mux.Router) {
 	protectedR.HandleFunc("/all", controllers.GetUserURL).Methods("GET")
 	protectedR.HandleFunc("/{id}", controllers.UpdateUrl).Methods("PATCH")
 
+}
+
+func URLResolveRoutes(r *mux.Router) {
 	r.HandleFunc("/{short}", controllers.ResolveURL).Methods("GET")
 }

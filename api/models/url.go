@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 	"fmt"
+	"os"
 	"time"
 
 	"example.com/go/url-shortner/helpers"
@@ -48,6 +49,8 @@ func CreateURL(user *User, short string, destination string, expiry int32) (*URL
 	url := URL{User: user, Short: short, Destination: destination, Expiry: urlDoc.Expiry, LastVisited: urlDoc.LastVisited}
 	url.ID = res.InsertedID.(primitive.ObjectID)
 	fmt.Printf("URL created with id %v\n", url.ID)
+
+	url.Short = os.Getenv("DOMAIN") + "/" + url.Short
 
 	return &url, nil
 }
@@ -96,6 +99,7 @@ func GetUserURL(userId primitive.ObjectID) ([]*URLDoc, error) {
 		if e != nil {
 			fmt.Println(err)
 		}
+		result.Short = os.Getenv("DOMAIN") + "/" + result.Short
 		results = append(results, &result)
 	}
 
