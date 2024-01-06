@@ -70,7 +70,7 @@ func ShortenURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !helpers.ContainsString(&preoccupiedShorts, &body.CustomShort) {
+	if body.CustomShort != "" && helpers.ContainsString(&preoccupiedShorts, &body.CustomShort) {
 		helpers.SendJSONError(w, http.StatusBadRequest, fmt.Errorf("short already in use").Error())
 		return
 	}
@@ -101,7 +101,7 @@ func ShortenURL(w http.ResponseWriter, r *http.Request) {
 	// }
 	resp := ShortenURLReponse{
 		Destination: tinyUrl.Destination,
-		CustomShort: "",
+		CustomShort: tinyUrl.Short,
 		Expiry:      tinyUrl.Expiry,
 	}
 
@@ -151,8 +151,13 @@ func GetUserURL(w http.ResponseWriter, r *http.Request) {
 		helpers.SendJSONError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-
 	helpers.SetHeaders("GET", w, http.StatusOK)
+
+	if len(urls) == 0 {
+		json.NewEncoder(w).Encode([]map[string]string{})
+		return
+	}
+
 	json.NewEncoder(w).Encode(urls)
 }
 
