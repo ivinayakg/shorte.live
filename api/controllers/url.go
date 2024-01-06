@@ -36,6 +36,7 @@ type UpdateURLRequest struct {
 func ShortenURL(w http.ResponseWriter, r *http.Request) {
 	userData := r.Context().Value(middleware.UserAuthKey).(*models.User)
 	body := new(ShortenURLRequest)
+	preoccupiedShorts := []string{"url", "user"}
 
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		helpers.SendJSONError(w, http.StatusBadRequest, err.Error())
@@ -66,6 +67,11 @@ func ShortenURL(w http.ResponseWriter, r *http.Request) {
 	// check for domain error
 	if !helpers.RemoverDomainError(body.Destination) {
 		helpers.SendJSONError(w, http.StatusBadRequest, fmt.Errorf("invalid url").Error())
+		return
+	}
+
+	if !helpers.ContainsString(&preoccupiedShorts, &body.CustomShort) {
+		helpers.SendJSONError(w, http.StatusBadRequest, fmt.Errorf("short already in use").Error())
 		return
 	}
 
@@ -107,7 +113,6 @@ func ShortenURL(w http.ResponseWriter, r *http.Request) {
 	// ttl, _ := r2.TTL(database.Ctx, c.IP()).Result()
 	// resp.XRateLimitReset = ttl / time.Nanosecond / time.Minute
 
-	resp.CustomShort = os.Getenv("DOMAIN") + "/url/" + tinyUrl.Short
 	helpers.SetHeaders("post", w, http.StatusCreated)
 	json.NewEncoder(w).Encode(resp)
 }
@@ -125,7 +130,7 @@ func ResolveURL(w http.ResponseWriter, r *http.Request) {
 
 	currentTime := time.Now()
 	if err == mongo.ErrNoDocuments || currentTime.After(url.Expiry) {
-		notFoundUrl := os.Getenv("DOMAIN") + "/not-found"
+		notFoundUrl := os.Getenv("DOMAIN") + "/not-found/redirect"
 		http.Redirect(w, r, notFoundUrl, http.StatusMovedPermanently)
 		return
 	}

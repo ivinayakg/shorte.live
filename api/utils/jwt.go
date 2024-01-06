@@ -10,10 +10,9 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-var secretKey = []byte(os.Getenv("JWT_SECRET_KEY"))
-var expiry = os.Getenv("JWT_EXPIRY")
-
 func CreateJWT(user *models.User) (*string, error) {
+	var secretKey = []byte(os.Getenv("JWT_SECRET_KEY"))
+	var expiry = os.Getenv("JWT_EXPIRY")
 	expiryTotal, err := strconv.Atoi(expiry)
 	if err != nil {
 		fmt.Println("Error:", err)
@@ -41,6 +40,7 @@ func CreateJWT(user *models.User) (*string, error) {
 }
 
 func VerifyJwt(tokenString string) (*map[string]string, error) {
+	var secretKey = []byte(os.Getenv("JWT_SECRET_KEY"))
 	if tokenString == "" {
 		return nil, fmt.Errorf("invalid token value: %s", tokenString)
 	}
