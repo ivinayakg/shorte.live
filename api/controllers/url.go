@@ -16,15 +16,21 @@ import (
 )
 
 type ShortenURLRequest struct {
-	URL         string `json:"url"`
+	Destination string `json:"destination"`
 	CustomShort string `json:"short"`
 	Expiry      int32  `json:"expiry"`
 }
 
 type ShortenURLReponse struct {
-	URL         string    `json:"url"`
+	Destination string    `json:"destination"`
 	CustomShort string    `json:"short"`
 	Expiry      time.Time `json:"expiry"`
+}
+
+type UpdateURLRequest struct {
+	CustomShort string `json:"short"`
+	Expiry      string `json:"expiry"`
+	Destination string `json:"destination"`
 }
 
 func ShortenURL(w http.ResponseWriter, r *http.Request) {
@@ -52,19 +58,19 @@ func ShortenURL(w http.ResponseWriter, r *http.Request) {
 	// }
 
 	// check if the input is an actual URL
-	if !govalidator.IsURL(body.URL) {
+	if !govalidator.IsURL(body.Destination) {
 		helpers.SendJSONError(w, http.StatusBadRequest, fmt.Errorf("invalid url").Error())
 		return
 	}
 
 	// check for domain error
-	if !helpers.RemoverDomainError(body.URL) {
+	if !helpers.RemoverDomainError(body.Destination) {
 		helpers.SendJSONError(w, http.StatusBadRequest, fmt.Errorf("invalid url").Error())
 		return
 	}
 
 	// enforce https, SSL
-	body.URL = helpers.EnforceHTTP(body.URL)
+	body.Destination = helpers.EnforceHTTP(body.Destination)
 
 	// r := database.CreateClient(0)
 	// defer r.Close()
@@ -77,7 +83,7 @@ func ShortenURL(w http.ResponseWriter, r *http.Request) {
 		body.Expiry = 24
 	}
 
-	tinyUrl, err := models.CreateURL(userData, body.CustomShort, body.URL, body.Expiry)
+	tinyUrl, err := models.CreateURL(userData, body.CustomShort, body.Destination, body.Expiry)
 	if err != nil {
 		helpers.SendJSONError(w, http.StatusBadRequest, err.Error())
 		return
@@ -88,7 +94,7 @@ func ShortenURL(w http.ResponseWriter, r *http.Request) {
 	// 	return {"error": "unable to connect to server"}
 	// }
 	resp := ShortenURLReponse{
-		URL:         tinyUrl.Destination,
+		Destination: tinyUrl.Destination,
 		CustomShort: "",
 		Expiry:      tinyUrl.Expiry,
 	}
@@ -110,7 +116,7 @@ func ResolveURL(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	urlShort := vars["short"]
 
-	url, err := models.GetURL(urlShort)
+	url, err := models.GetURL(urlShort, "")
 	if err != nil && err != mongo.ErrNoDocuments {
 		helpers.SendJSONError(w, http.StatusBadRequest, err.Error())
 		return
@@ -121,7 +127,72 @@ func ResolveURL(w http.ResponseWriter, r *http.Request) {
 	if err == mongo.ErrNoDocuments || currentTime.After(url.Expiry) {
 		notFoundUrl := os.Getenv("DOMAIN") + "/not-found"
 		http.Redirect(w, r, notFoundUrl, http.StatusMovedPermanently)
+		return
 	}
 
+	// go func(urlId string) {
+	// 	currTime := time.Now()
+	// 	models.UpdateUserURLVisited(urlId, currTime)
+	// }(url.ID.Hex())
+
 	http.Redirect(w, r, url.Destination, http.StatusMovedPermanently)
+}
+
+func GetUserURL(w http.ResponseWriter, r *http.Request) {
+	userData := r.Context().Value(middleware.UserAuthKey).(*models.User)
+
+	urls, err := models.GetUserURL(userData.ID)
+	if err != nil && err != mongo.ErrNoDocuments {
+		helpers.SendJSONError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	helpers.SetHeaders("GET", w, http.StatusOK)
+	json.NewEncoder(w).Encode(urls)
+}
+
+func UpdateUrl(w http.ResponseWriter, r *http.Request) {
+	userData := r.Context().Value(middleware.UserAuthKey).(*models.User)
+	vars := mux.Vars(r)
+	urlId := vars["id"]
+	reqData := new(UpdateURLRequest)
+
+	if err := json.NewDecoder(r.Body).Decode(&reqData); err != nil {
+		helpers.SendJSONError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	var expiry time.Time
+	if reqData.Expiry != "" {
+		parsedDatetime, err := time.Parse(time.RFC3339, reqData.Expiry)
+		if err != nil {
+			helpers.SendJSONError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		expiry = parsedDatetime
+	}
+
+	url, err := models.GetURL("", urlId)
+	if err != nil && err != mongo.ErrNoDocuments {
+		helpers.SendJSONError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if reqData.CustomShort == "" {
+		reqData.CustomShort = url.Short
+	}
+	if reqData.Destination == "" {
+		reqData.Destination = url.Destination
+	}
+	if reqData.Expiry == "" {
+		expiry = url.Expiry
+	}
+
+	if err := models.UpdateUserURL(userData.ID, urlId, reqData.CustomShort, reqData.Destination, expiry); err != nil {
+		helpers.SendJSONError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	helpers.SetHeaders("PATCH", w, http.StatusNoContent)
+	json.NewEncoder(w).Encode(map[string]string{"message": "successfully updated"})
 }

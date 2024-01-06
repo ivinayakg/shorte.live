@@ -52,11 +52,22 @@ func CreateURL(user *User, short string, destination string, expiry int32) (*URL
 	return &url, nil
 }
 
-func GetURL(short string) (*URLDoc, error) {
+func GetURL(short string, id string) (*URLDoc, error) {
 	url := new(URLDoc)
 
 	ctx := context.TODO()
-	urlFilter := bson.M{"short": short}
+
+	var urlFilter bson.M
+	if id == "" {
+		urlFilter = bson.M{"short": short}
+	} else {
+		urlObjectId, err := primitive.ObjectIDFromHex(id)
+		if err != nil {
+			fmt.Println(err)
+			return nil, err
+		}
+		urlFilter = bson.M{"_id": urlObjectId}
+	}
 
 	err := helpers.CurrentDb.Url.FindOne(ctx, urlFilter).Decode(url)
 	if err != nil {
@@ -66,4 +77,83 @@ func GetURL(short string) (*URLDoc, error) {
 
 	fmt.Printf("URL found with id %v\n", url.ID)
 	return url, nil
+}
+
+func GetUserURL(userId primitive.ObjectID) ([]*URLDoc, error) {
+	ctx := context.TODO()
+	urlFilter := bson.M{"user": userId}
+
+	curr, err := helpers.CurrentDb.Url.Find(ctx, urlFilter)
+	if err != nil {
+		return nil, err
+	}
+	defer curr.Close(context.TODO())
+
+	var results []*URLDoc
+	for curr.Next(context.TODO()) {
+		var result URLDoc
+		e := curr.Decode(&result)
+		if e != nil {
+			fmt.Println(err)
+		}
+		results = append(results, &result)
+	}
+
+	if err := curr.Err(); err != nil {
+		return nil, err
+	}
+
+	return results, nil
+}
+
+func UpdateUserURL(userId primitive.ObjectID, urlId string, newShort string, destination string, expiry time.Time) error {
+	urlObjectId, err := primitive.ObjectIDFromHex(urlId)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	ctx := context.TODO()
+	urlFilter := bson.M{"user": userId, "_id": urlObjectId}
+	updateData := bson.M{"$set": bson.M{"short": newShort, "destination": destination, "expiry": expiry}}
+
+	res, err := helpers.CurrentDb.Url.UpdateOne(ctx, urlFilter, updateData)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			fmt.Println("URL Document not found")
+		} else {
+			fmt.Println(err)
+		}
+		return err
+	} else {
+		fmt.Printf("Update document successfully URL: %+v\n", res.UpsertedID)
+	}
+
+	return nil
+}
+
+func UpdateUserURLVisited(urlId string, visited time.Time) error {
+	urlObjectId, err := primitive.ObjectIDFromHex(urlId)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	ctx := context.TODO()
+	urlFilter := bson.M{"_id": urlObjectId}
+	updateData := bson.M{"$set": bson.M{"lastvisited": visited}}
+
+	res, err := helpers.CurrentDb.Url.UpdateOne(ctx, urlFilter, updateData)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			fmt.Println("URL Document not found")
+		} else {
+			fmt.Println(err)
+		}
+		return err
+	} else {
+		fmt.Printf("Update document successfully URL: %+v\n", res.UpsertedID)
+	}
+
+	return nil
 }
