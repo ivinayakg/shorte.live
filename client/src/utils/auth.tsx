@@ -1,5 +1,7 @@
+import { useNavigate, useSearchParams } from "react-router-dom";
 import fetch from "./axios";
 import { setInLocalStorage } from "./localstorage";
+import { useEffect } from "react";
 
 export default async function (token: string) {
   if (!token) return;
@@ -14,3 +16,20 @@ export default async function (token: string) {
   }
   return res.data;
 }
+
+function AuthComponent() {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = searchParams.get("token");
+    if (token) {
+      setInLocalStorage("userToken", token);
+    }
+    navigate("/");
+  });
+
+  return null;
+}
+
+export { AuthComponent };
