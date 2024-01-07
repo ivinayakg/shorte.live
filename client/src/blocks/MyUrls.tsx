@@ -121,6 +121,7 @@ function MyUrls() {
   const { toast } = useToast();
   const Headings = ["Serial", "Short", "Destination", "Expiry", "ID", "Edit"];
   const location = useLocation();
+  const navigate = useNavigate();
 
   const CopyToClipboard = (value: string) => {
     navigator.clipboard.writeText(value);
@@ -146,6 +147,8 @@ function MyUrls() {
         }
       })();
     }
+
+    if (!userState.login) navigate("/");
   }, [location.pathname, userState.login]);
 
   return (
