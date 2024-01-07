@@ -7,6 +7,7 @@ import { AuthComponent } from "@/utils/auth";
 import MyUrls from "@/blocks/MyUrls";
 import Header from "@/blocks/Header";
 import CreateShort from "@/blocks/CreateShort";
+import NotFound from "@/blocks/NotFound";
 
 const router = createBrowserRouter([
   {
@@ -20,6 +21,10 @@ const router = createBrowserRouter([
       {
         path: "/my-urls",
         element: <MyUrls />,
+      },
+      {
+        path: "/not-found/redirect",
+        element: <NotFound />,
       },
     ],
   },
