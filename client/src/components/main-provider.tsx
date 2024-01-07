@@ -2,7 +2,7 @@ import auth from "@/utils/auth";
 import { getFromLocalStorage } from "@/utils/localstorage";
 import { createContext, useContext, useEffect, useState } from "react";
 
-type UserState = {
+export type UserState = {
   email: string;
   name: string;
   picture: string;

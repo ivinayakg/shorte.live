@@ -130,7 +130,7 @@ func ResolveURL(w http.ResponseWriter, r *http.Request) {
 
 	currentTime := time.Now()
 	if err == mongo.ErrNoDocuments || currentTime.After(url.Expiry) {
-		notFoundUrl := os.Getenv("DOMAIN") + "/not-found/redirect"
+		notFoundUrl := os.Getenv("FRONTEND_URL") + "/not-found/redirect"
 		http.Redirect(w, r, notFoundUrl, http.StatusMovedPermanently)
 		return
 	}
