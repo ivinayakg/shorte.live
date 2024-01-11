@@ -13,6 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import UpdateURLModal from "@/blocks/UpdateURLModal";
+import DeleteURLModal from "@/blocks/DeleteURLModal";
 
 function MyUrls() {
   const { userState } = useMain();
@@ -64,6 +65,7 @@ function MyUrls() {
   return (
     <div className="py-5">
       <UpdateURLModal urlObj={urlObj} userState={userState} ref={editRef} />
+      <DeleteURLModal urlObj={urlObj} userState={userState} ref={deleteRef} />
       <Table>
         <TableHeader>
           <TableRow>

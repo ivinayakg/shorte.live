@@ -237,3 +237,24 @@ func UpdateUrl(w http.ResponseWriter, r *http.Request) {
 	helpers.SetHeaders("PATCH", w, http.StatusNoContent)
 	json.NewEncoder(w).Encode(map[string]string{"message": "successfully updated"})
 }
+
+func DeleteUrl(w http.ResponseWriter, r *http.Request) {
+	userData := r.Context().Value(middleware.UserAuthKey).(*models.User)
+	vars := mux.Vars(r)
+	urlId := vars["id"]
+
+	url, err := models.GetURL("", urlId)
+	if err != nil && err != mongo.ErrNoDocuments {
+		helpers.SendJSONError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	if err := models.DeleteURL(userData.ID, urlId); err != nil {
+		helpers.SendJSONError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	go helpers.Redis.Client.Del(context.Background(), url.Short)
+
+	helpers.SetHeaders("DELETE", w, http.StatusNoContent)
+	json.NewEncoder(w).Encode(map[string]string{"message": "successfully deleted"})
+}
