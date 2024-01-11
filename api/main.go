@@ -17,8 +17,8 @@ import (
 
 func setupRoutes(router *mux.Router) {
 	routes.UserRoutes(router.PathPrefix("/user").Subrouter())
-	routes.URLRoutes(router.PathPrefix("/url").Subrouter())
 	routes.URLResolveRoutes(router)
+	routes.URLRoutes(router.PathPrefix("/url").Subrouter())
 }
 
 func main() {
@@ -37,6 +37,7 @@ func main() {
 
 	r := mux.NewRouter()
 	helpers.CreateDBInstance()
+	helpers.RedisSetup()
 	r.Use(middleware.LogMW)
 
 	setupRoutes(r)

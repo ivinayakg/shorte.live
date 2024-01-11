@@ -1,10 +1,12 @@
 package controllers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"example.com/go/url-shortner/helpers"
@@ -12,6 +14,7 @@ import (
 	"example.com/go/url-shortner/models"
 	"github.com/asaskevich/govalidator"
 	"github.com/gorilla/mux"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -118,18 +121,43 @@ func ShortenURL(w http.ResponseWriter, r *http.Request) {
 }
 
 func ResolveURL(w http.ResponseWriter, r *http.Request) {
+	url := &models.URLDoc{}
+	urlExpiredOrNotFound := true
+	var err error
+
 	vars := mux.Vars(r)
 	urlShort := vars["short"]
-
-	url, err := models.GetURL(urlShort, "")
-	if err != nil && err != mongo.ErrNoDocuments {
-		helpers.SendJSONError(w, http.StatusBadRequest, err.Error())
-		return
-	}
-	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-
 	currentTime := time.Now()
-	if err == mongo.ErrNoDocuments || currentTime.After(url.Expiry) {
+
+	revalidateCache, err := strconv.ParseBool(r.URL.Query().Get("revalidate"))
+	if err != nil {
+		fmt.Println("Error:", err)
+		revalidateCache = false
+	}
+
+	err = helpers.Redis.GetJSON(urlShort, url)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	if url.ID != primitive.NilObjectID && !revalidateCache {
+		if !currentTime.After(url.Expiry) {
+			urlExpiredOrNotFound = false
+		}
+	} else {
+		url, err = models.GetURL(urlShort, "")
+		if err != nil && err != mongo.ErrNoDocuments {
+			helpers.SendJSONError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		if err != mongo.ErrNoDocuments && !currentTime.After(url.Expiry) {
+			urlExpiredOrNotFound = false
+			go helpers.Redis.SetJSON(urlShort, url, time.Until(url.Expiry))
+		}
+	}
+
+	if urlExpiredOrNotFound || url == nil {
 		notFoundUrl := os.Getenv("FRONTEND_URL") + "/not-found/redirect"
 		http.Redirect(w, r, notFoundUrl, http.StatusMovedPermanently)
 		return
@@ -140,6 +168,7 @@ func ResolveURL(w http.ResponseWriter, r *http.Request) {
 	// 	models.UpdateUserURLVisited(urlId, currTime)
 	// }(url.ID.Hex())
 
+	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 	http.Redirect(w, r, url.Destination, http.StatusMovedPermanently)
 }
 
@@ -202,6 +231,8 @@ func UpdateUrl(w http.ResponseWriter, r *http.Request) {
 		helpers.SendJSONError(w, http.StatusBadRequest, err.Error())
 		return
 	}
+
+	go helpers.Redis.Client.Del(context.Background(), url.Short)
 
 	helpers.SetHeaders("PATCH", w, http.StatusNoContent)
 	json.NewEncoder(w).Encode(map[string]string{"message": "successfully updated"})
