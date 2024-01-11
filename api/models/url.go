@@ -161,3 +161,28 @@ func UpdateUserURLVisited(urlId string, visited time.Time) error {
 
 	return nil
 }
+
+func DeleteURL(userId primitive.ObjectID, urlId string) error {
+	urlObjectId, err := primitive.ObjectIDFromHex(urlId)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	ctx := context.TODO()
+	urlFilter := bson.M{"user": userId, "_id": urlObjectId}
+
+	res, err := helpers.CurrentDb.Url.DeleteOne(ctx, urlFilter)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			fmt.Println("URL Document not found")
+		} else {
+			fmt.Println(err)
+		}
+		return err
+	} else {
+		fmt.Printf("Deleted document successfully URL: %+v. Total documents deleted - %d\n", urlId, res.DeletedCount)
+	}
+
+	return nil
+}

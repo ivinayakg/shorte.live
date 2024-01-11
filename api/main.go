@@ -30,7 +30,7 @@ func main() {
 	allowed_origins := strings.Split(os.Getenv("ALLOWED_ORIGINS"), " ")
 	corsHandler := cors.New(cors.Options{
 		AllowedOrigins:   allowed_origins,
-		AllowedMethods:   []string{"GET", "POST", "OPTIONS", "PATCH"},
+		AllowedMethods:   []string{"GET", "POST", "OPTIONS", "PATCH", "DELETE"},
 		AllowedHeaders:   []string{"Content-Type", "Authorization"},
 		AllowCredentials: true,
 	})
