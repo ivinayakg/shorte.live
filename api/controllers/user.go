@@ -92,10 +92,7 @@ func CallbackSignInWithGoogle(w http.ResponseWriter, r *http.Request) {
 
 	// Assuming User, UserSerializer, and other settings are defined elsewhere
 	user, err := models.GetUser(googleProfile["email"].(string))
-	if err != nil {
-		if err != mongo.ErrNoDocuments {
-			return
-		}
+	if err != nil && err != mongo.ErrNoDocuments {
 		helpers.SendJSONError(w, http.StatusInternalServerError, "Internal Server Error")
 		return
 	}
