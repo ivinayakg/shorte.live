@@ -27,6 +27,8 @@ func main() {
 		fmt.Println(err)
 	}
 
+	PORT := os.Getenv("PORT")
+
 	allowed_origins := strings.Split(os.Getenv("ALLOWED_ORIGINS"), " ")
 	corsHandler := cors.New(cors.Options{
 		AllowedOrigins:   allowed_origins,
@@ -43,5 +45,6 @@ func main() {
 	setupRoutes(r)
 	routerProtected := corsHandler.Handler(r)
 
-	log.Fatal(http.ListenAndServe(fmt.Sprintf("localhost:%v", os.Getenv("PORT")), routerProtected))
+	fmt.Println("Starting the server on port " + PORT)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", PORT), routerProtected))
 }
