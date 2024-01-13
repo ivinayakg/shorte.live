@@ -46,20 +46,11 @@ func ShortenURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//*implement rate limiting
-	// r2 := database.CreateClient(1)
-	// defer r2.Close()
-	// val, err := r2.Get(database.Ctx, c.IP()).Result()
-	// if err == redis.Nil {
-	// 	_ = r2.Set(database.Ctx, c.IP(), os.Getenv("API_QUOTA"), 30*60*time.Second).Err()
-	// } else {
-	// 	// val, _ = r2.Get(database.Ctx, c.IP()).Result()
-	// 	valInt, _ := strconv.Atoi(val)
-	// 	if valInt <= 0 {
-	// 		limit, _ := r2.TTL(database.Ctx, c.IP()).Result()
-	// 		return {"error": "rate limit exceeded", "rate_limit_rest": limit / time.Nanosecond / time.Minute}
-	// 	}
-	// }
+	info, err := helpers.RateLimit(r, userData.ID.Hex(), nil)
+	if err != nil {
+		helpers.SendJSONError(w, http.StatusTooManyRequests, fmt.Errorf("you have exhausted your quota for %v, %v to retry again", "Shorten URL", helpers.TimeRemaining(info)).Error())
+		return
+	}
 
 	// check if the input is an actual URL
 	if !govalidator.IsURL(body.Destination) {
@@ -74,19 +65,12 @@ func ShortenURL(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if body.CustomShort != "" && helpers.ContainsString(&preoccupiedShorts, &body.CustomShort) {
-		helpers.SendJSONError(w, http.StatusBadRequest, fmt.Errorf("short already in use").Error())
+		helpers.SendJSONError(w, http.StatusBadRequest, fmt.Errorf("can't use this short").Error())
 		return
 	}
 
 	// enforce https, SSL
 	body.Destination = helpers.EnforceHTTP(body.Destination)
-
-	// r := database.CreateClient(0)
-	// defer r.Close()
-	// val, _ = r.Get(database.Ctx, id).Result()
-	// if val != "" {
-	// 	return "URL custom short is already in user"
-	// }
 
 	if body.Expiry == 0 {
 		body.Expiry = 24
@@ -98,23 +82,11 @@ func ShortenURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// err = r.Set(database.Ctx, id, body.URL, body.Expiry*3600*time.Second).Err()
-	// if err != nil {
-	// 	return {"error": "unable to connect to server"}
-	// }
 	resp := ShortenURLReponse{
 		Destination: tinyUrl.Destination,
 		CustomShort: tinyUrl.Short,
 		Expiry:      tinyUrl.Expiry,
 	}
-
-	// r2.Decr(database.Ctx, c.IP())
-
-	// val, _ = r2.Get(database.Ctx, c.IP()).Result()
-
-	// resp.XRateRemaining, _ = strconv.Atoi(val)
-	// ttl, _ := r2.TTL(database.Ctx, c.IP()).Result()
-	// resp.XRateLimitReset = ttl / time.Nanosecond / time.Minute
 
 	helpers.SetHeaders("post", w, http.StatusCreated)
 	json.NewEncoder(w).Encode(resp)
@@ -124,6 +96,16 @@ func ResolveURL(w http.ResponseWriter, r *http.Request) {
 	url := &models.URLDoc{}
 	urlExpiredOrNotFound := true
 	var err error
+
+	defaultLimit, found := helpers.GetRateConfig(false).Limit["dynamic"]
+	if !found {
+		defaultLimit = &helpers.URLLimit{Value: 100, Expiry: 30}
+	}
+	info, err := helpers.RateLimit(r, "", defaultLimit)
+	if err != nil {
+		helpers.SendJSONError(w, http.StatusTooManyRequests, fmt.Errorf("you have exhausted your quota for %v, %v to retry again", "Resolve URL", helpers.TimeRemaining(info)).Error())
+		return
+	}
 
 	vars := mux.Vars(r)
 	urlShort := vars["short"]

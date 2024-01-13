@@ -2,9 +2,11 @@ package helpers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 	"strings"
+	"time"
 )
 
 type ErrorResponse struct {
@@ -65,9 +67,33 @@ func SendJSONError(w http.ResponseWriter, statusCode int, errorMessage string) {
 
 func ContainsString(arr *[]string, target *string) bool {
 	for _, s := range *arr {
-		if s == *target {
+		if strings.Contains(s, *target) {
 			return true
 		}
 	}
 	return false
+}
+
+func GetUserIP(r *http.Request) string {
+	ip := r.Header.Get("X-Forwarded-For")
+
+	// If X-Forwarded-For header is empty (not behind a proxy), get the IP from RemoteAddr
+	if ip == "" {
+		ip = r.RemoteAddr
+	}
+
+	return ip
+}
+
+func TimeRemaining(duration time.Duration) string {
+	if duration <= 0 {
+		return "Time has expired"
+	}
+
+	days := int(duration.Hours() / 24)
+	hours := int(duration.Hours()) % 24
+	minutes := int(duration.Minutes()) % 60
+	seconds := int(duration.Seconds()) % 60
+
+	return fmt.Sprintf("Time remaining = %02dd %02dh %02dm %02ds", days, hours, minutes, seconds)
 }
