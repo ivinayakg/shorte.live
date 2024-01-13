@@ -14,6 +14,7 @@ type DB struct {
 	User    *mongo.Collection
 	Url     *mongo.Collection
 	Tracker *mongo.Collection
+	Config  *mongo.Collection
 }
 
 var CurrentDb *DB
@@ -24,6 +25,7 @@ func CreateDBInstance() {
 	userCollName := os.Getenv("DB_USER_COLLECTION_NAME")
 	urlCollName := os.Getenv("DB_URL_COLLECTION_NAME")
 	trackerCollName := os.Getenv("DB_TRACKER_COLLECTION_NAME")
+	configCollName := os.Getenv("DB_CONFIG_COLLECTION_NAME")
 	clientOptions := options.Client().ApplyURI(connectionString)
 
 	client, err := mongo.Connect(context.TODO(), clientOptions)
@@ -43,6 +45,7 @@ func CreateDBInstance() {
 	userCollection := client.Database(dbName).Collection(userCollName)
 	urlCollection := client.Database(dbName).Collection(urlCollName)
 	trackerCollection := client.Database(dbName).Collection(trackerCollName)
+	configCollection := client.Database(dbName).Collection(configCollName)
 
-	CurrentDb = &DB{User: userCollection, Url: urlCollection, Tracker: trackerCollection}
+	CurrentDb = &DB{User: userCollection, Url: urlCollection, Tracker: trackerCollection, Config: configCollection}
 }

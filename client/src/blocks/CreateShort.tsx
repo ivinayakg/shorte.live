@@ -49,7 +49,7 @@ function CreateShort() {
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",
-        description: <p>{error.message}</p>,
+        description: <p>{error.response.data.error}</p>,
         duration: 2000,
       });
     }
