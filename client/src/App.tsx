@@ -4,10 +4,10 @@ import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 import { MainProvider } from "@/components/main-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthComponent } from "@/utils/auth";
-import MyUrls from "@/blocks/MyUrls";
-import Header from "@/blocks/Header";
-import CreateShort from "@/blocks/CreateShort";
-import NotFound from "@/blocks/NotFound";
+import MyUrls from "@/pages/MyUrls";
+import Header from "@/components/Header";
+import CreateShort from "@/pages/CreateShort";
+import NotFound from "@/pages/NotFound";
 
 const router = createBrowserRouter([
   {

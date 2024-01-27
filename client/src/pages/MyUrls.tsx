@@ -12,8 +12,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import UpdateURLModal from "@/blocks/UpdateURLModal";
-import DeleteURLModal from "@/blocks/DeleteURLModal";
+import UpdateURLModal from "@/components/UpdateURLModal";
+import DeleteURLModal from "@/components/DeleteURLModal";
 
 function MyUrls() {
   const { userState } = useMain();

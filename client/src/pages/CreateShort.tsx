@@ -56,23 +56,24 @@ function CreateShort() {
   };
 
   return (
-    <div className="w-full flex flex-col justify-center items-center gap-10 createshort">
-      <h2 className="text-7xl font-bold">Generate shorten link</h2>
+    <div className="w-full flex flex-col justify-center items-center gap-5 createshort">
+      <h2 className="text-3xl sm:text-6xl font-bold">Generate shorten link</h2>
       <form
-        className="flex w-full max-w-5xl items-center space-x-2"
+        className="flex w-full max-w-5xl items-center space-x-2 flex-col gap-2 sm:flex-row"
         onSubmit={generateShortLink}
       >
         <Input
-          className=""
+          className="w-full"
           type="text"
           placeholder="Destination URL"
           name="destination"
         />
         <Input
-          className="w-2/5"
+          className="w-full sm:w-2/5 ml-0"
           type="text"
           placeholder="Custom Short (Optional)"
           name="short"
+          disabled={!userState.login}
         />
         {userState.login ? (
           <Button className="" type="submit">

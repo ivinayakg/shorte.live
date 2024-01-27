@@ -17,9 +17,9 @@ function Header() {
   };
 
   return (
-    <div className="min-w-full flex justify-between items-center py-5">
+    <div className="min-w-full flex justify-between items-center py-5 flex-col sm:flex-row gap-4">
       <Link to="/">
-        <h1 className="text-3xl">URL Shortner</h1>
+        <h1 className="text-3xl">shorte.live</h1>
       </Link>
       <div className="flex justify-center items-center gap-4">
         {userState.login ? (
