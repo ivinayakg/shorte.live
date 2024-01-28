@@ -64,7 +64,7 @@ func ShortenURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if body.CustomShort != "" && helpers.ContainsString(&preoccupiedShorts, &body.CustomShort) {
+	if body.CustomShort != "" && helpers.ContainsString(&preoccupiedShorts, &body.CustomShort) && helpers.ValidShortString(&body.CustomShort) {
 		helpers.SendJSONError(w, http.StatusBadRequest, fmt.Errorf("can't use this short").Error())
 		return
 	}
