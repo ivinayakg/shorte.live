@@ -1,4 +1,4 @@
-module github.com/ivinayakg/short.service
+module github.com/ivinayakg/short.service/redirect_service
 
 go 1.20
 
