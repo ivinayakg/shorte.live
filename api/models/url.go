@@ -99,7 +99,7 @@ func GetUserURL(userId primitive.ObjectID) ([]*URLDoc, error) {
 		if e != nil {
 			fmt.Println(err)
 		}
-		result.Short = os.Getenv("DOMAIN") + "/" + result.Short
+		result.Short = os.Getenv("SHORTED_URL_DOMAIN") + "/" + result.Short
 		results = append(results, &result)
 	}
 

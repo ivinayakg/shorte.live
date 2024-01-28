@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -96,4 +97,9 @@ func TimeRemaining(duration time.Duration) string {
 	seconds := int(duration.Seconds()) % 60
 
 	return fmt.Sprintf("Time remaining = %02dd %02dh %02dm %02ds", days, hours, minutes, seconds)
+}
+
+func ValidShortString(short *string) bool {
+	re := regexp.MustCompile(`[/@&?#]`)
+	return !re.MatchString(*short)
 }

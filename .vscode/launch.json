@@ -9,6 +9,15 @@
       "program": "${workspaceFolder}/api",
       "env": {},
       "args": []
+    },
+    {
+      "name": "Launch Redirect Server",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/redirect_service",
+      "env": {},
+      "args": []
     }
   ]
 }
