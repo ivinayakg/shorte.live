@@ -6,8 +6,8 @@ import (
 	"os"
 	"time"
 
-	"example.com/go/url-shortner/helpers"
 	"github.com/google/uuid"
+	"github.com/ivinayakg/shorte.live/api/helpers"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"gopkg.in/mgo.v2/bson"

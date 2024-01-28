@@ -1,4 +1,4 @@
-module example.com/go/url-shortner
+module github.com/ivinayakg/shorte.live/api
 
 go 1.20
 

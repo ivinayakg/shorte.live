@@ -7,10 +7,10 @@ import (
 	"os"
 	"strings"
 
-	"example.com/go/url-shortner/helpers"
-	"example.com/go/url-shortner/middleware"
-	"example.com/go/url-shortner/routes"
 	"github.com/gorilla/mux"
+	"github.com/ivinayakg/shorte.live/api/helpers"
+	"github.com/ivinayakg/shorte.live/api/middleware"
+	"github.com/ivinayakg/shorte.live/api/routes"
 	"github.com/joho/godotenv"
 	"github.com/rs/cors"
 )

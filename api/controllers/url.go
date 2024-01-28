@@ -9,11 +9,11 @@ import (
 	"strconv"
 	"time"
 
-	"example.com/go/url-shortner/helpers"
-	"example.com/go/url-shortner/middleware"
-	"example.com/go/url-shortner/models"
 	"github.com/asaskevich/govalidator"
 	"github.com/gorilla/mux"
+	"github.com/ivinayakg/shorte.live/api/helpers"
+	"github.com/ivinayakg/shorte.live/api/middleware"
+	"github.com/ivinayakg/shorte.live/api/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )

@@ -7,10 +7,10 @@ import (
 	"net/url"
 	"os"
 
-	"example.com/go/url-shortner/helpers"
-	"example.com/go/url-shortner/middleware"
-	"example.com/go/url-shortner/models"
-	"example.com/go/url-shortner/utils"
+	"github.com/ivinayakg/shorte.live/api/helpers"
+	"github.com/ivinayakg/shorte.live/api/middleware"
+	"github.com/ivinayakg/shorte.live/api/models"
+	"github.com/ivinayakg/shorte.live/api/utils"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 

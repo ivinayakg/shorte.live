@@ -1,9 +1,9 @@
 package routes
 
 import (
-	"example.com/go/url-shortner/controllers"
-	"example.com/go/url-shortner/middleware"
 	"github.com/gorilla/mux"
+	"github.com/ivinayakg/shorte.live/api/controllers"
+	"github.com/ivinayakg/shorte.live/api/middleware"
 )
 
 func UserRoutes(r *mux.Router) {

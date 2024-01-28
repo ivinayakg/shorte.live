@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"time"
 
-	"example.com/go/url-shortner/models"
 	"github.com/golang-jwt/jwt"
+	"github.com/ivinayakg/shorte.live/api/models"
 )
 
 func CreateJWT(user *models.User) (*string, error) {

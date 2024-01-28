@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"example.com/go/url-shortner/helpers"
+	"github.com/ivinayakg/shorte.live/api/helpers"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"gopkg.in/mgo.v2/bson"
 )

@@ -5,8 +5,8 @@ package routes
 // 	"strconv"
 // 	"time"
 
-// 	"example.com/go/url-shortner/database"
-// 	"example.com/go/url-shortner/helpers"
+// 	"github.com/ivinayakg/shorte.live/api/database"
+// 	"github.com/ivinayakg/shorte.live/api/helpers"
 // 	"github.com/asaskevich/govalidator"
 // 	"github.com/go-redis/redis/v8"
 // 	"github.com/gofiber/fiber/v2"
