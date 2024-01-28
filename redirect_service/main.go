@@ -20,6 +20,7 @@ import (
 var UI_URL string
 
 func RedirectHome(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 	http.Redirect(w, r, UI_URL, http.StatusSeeOther)
 }
 
