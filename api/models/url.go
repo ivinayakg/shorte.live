@@ -117,6 +117,17 @@ func UpdateUserURL(userId primitive.ObjectID, urlId string, newShort string, des
 		return err
 	}
 
+	// URL with newShort already exists
+	var urlDoc = new(URLDoc)
+	err = helpers.CurrentDb.Url.FindOne(context.TODO(), bson.M{"short": newShort}).Decode(&urlDoc)
+	if err != nil && err != mongo.ErrNoDocuments {
+		fmt.Println(err)
+		return err
+	}
+	if urlDoc.ID != primitive.NilObjectID && urlDoc.ID.Hex() != urlId {
+		return fmt.Errorf("URL custom short is already in user")
+	}
+
 	ctx := context.TODO()
 	urlFilter := bson.M{"user": userId, "_id": urlObjectId}
 	updateData := bson.M{"$set": bson.M{"short": newShort, "destination": destination, "expiry": expiry}}
