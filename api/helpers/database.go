@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -15,6 +16,33 @@ type DB struct {
 	Url     *mongo.Collection
 	Tracker *mongo.Collection
 	Config  *mongo.Collection
+}
+
+type DBIndexName string
+
+const urlShortIndexName DBIndexName = "url_short_index_1"
+
+func doesIndexExist(ctx context.Context, collection *mongo.Collection, indexName string) (bool, error) {
+	cursor, err := collection.Indexes().List(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	defer cursor.Close(ctx)
+
+	var indexDoc bson.M
+	for cursor.Next(ctx) {
+		if err := cursor.Decode(&indexDoc); err != nil {
+			return false, err
+		}
+
+		// Check if the index name matches
+		if name, ok := indexDoc["name"].(string); ok && name == indexName {
+			return true, nil
+		}
+	}
+
+	return false, nil
 }
 
 var CurrentDb *DB
@@ -46,6 +74,28 @@ func CreateDBInstance() {
 	urlCollection := client.Database(dbName).Collection(urlCollName)
 	trackerCollection := client.Database(dbName).Collection(trackerCollName)
 	configCollection := client.Database(dbName).Collection(configCollName)
+
+	urlShortIndex, err := doesIndexExist(context.Background(), urlCollection, string(urlShortIndexName))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if !urlShortIndex {
+		// Create the index
+		indexModel := mongo.IndexModel{
+			Keys:    bson.M{"short": 1},
+			Options: options.Index().SetUnique(true).SetName(string(urlShortIndexName)),
+		}
+
+		_, err := urlCollection.Indexes().CreateOne(context.Background(), indexModel)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Println("URL Short Index created successfully.")
+	} else {
+		fmt.Println("URL Short Index already exists.")
+	}
 
 	CurrentDb = &DB{User: userCollection, Url: urlCollection, Tracker: trackerCollection, Config: configCollection}
 }
