@@ -1,7 +1,7 @@
 #root {
   max-width: 1660px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1rem;
   text-align: center;
   min-height: 100vh;
 }
@@ -44,4 +44,10 @@
 
 .createshort {
   min-height: 75vh;
+}
+
+@media screen and (min-width: 640) {
+  #root{
+    padding: 2rem;
+  }
 }

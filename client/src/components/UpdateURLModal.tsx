@@ -30,7 +30,7 @@ function UpdateURL(
   const side = "right";
   const date = new Date(urlObj?.expiry);
   const customShort = urlObj?.short.split(
-    import.meta.env.VITE_BASE_URL + "/"
+    import.meta.env.VITE_REDIRECT_URL_BASE + "/"
   )[1];
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -59,7 +59,7 @@ function UpdateURL(
         duration: 2000,
       });
       setTimeout(() => {
-        navigate(0);
+        navigate("/my-urls");
       }, 2000);
     }
   };
@@ -100,6 +100,7 @@ function UpdateURL(
                 name="expiry"
                 className="col-span-3"
                 type="datetime-local"
+                // defaultValue={date.toLocaleString()}
               />
             </div>
             <SheetFooter>
