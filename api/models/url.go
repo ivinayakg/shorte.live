@@ -50,7 +50,7 @@ func CreateURL(user *User, short string, destination string, expiry int32) (*URL
 	url.ID = res.InsertedID.(primitive.ObjectID)
 	fmt.Printf("URL created with id %v\n", url.ID)
 
-	url.Short = os.Getenv("DOMAIN") + "/" + url.Short
+	url.Short = os.Getenv("SHORTED_URL_DOMAIN") + "/" + url.Short
 
 	return &url, nil
 }
@@ -118,15 +118,15 @@ func UpdateUserURL(userId primitive.ObjectID, urlId string, newShort string, des
 	}
 
 	// URL with newShort already exists
-	var urlDoc = new(URLDoc)
-	err = helpers.CurrentDb.Url.FindOne(context.TODO(), bson.M{"short": newShort}).Decode(&urlDoc)
-	if err != nil && err != mongo.ErrNoDocuments {
-		fmt.Println(err)
-		return err
-	}
-	if urlDoc.ID != primitive.NilObjectID && urlDoc.ID.Hex() != urlId {
-		return fmt.Errorf("URL custom short is already in user")
-	}
+	// var urlDoc = new(URLDoc)
+	// err = helpers.CurrentDb.Url.FindOne(context.TODO(), bson.M{"short": newShort}).Decode(&urlDoc)
+	// if err != nil && err != mongo.ErrNoDocuments {
+	// 	fmt.Println(err)
+	// 	return err
+	// }
+	// if urlDoc.ID != primitive.NilObjectID && urlDoc.ID.Hex() != urlId {
+	// 	return fmt.Errorf("URL custom short is already in user")
+	// }
 
 	ctx := context.TODO()
 	urlFilter := bson.M{"user": userId, "_id": urlObjectId}
@@ -136,6 +136,9 @@ func UpdateUserURL(userId primitive.ObjectID, urlId string, newShort string, des
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			fmt.Println("URL Document not found")
+		} else if writeError, ok := err.(mongo.WriteException); ok && writeError.WriteErrors[0].Code == 11000 {
+			fmt.Println(err)
+			return fmt.Errorf("URL custom short is already in user")
 		} else {
 			fmt.Println(err)
 		}

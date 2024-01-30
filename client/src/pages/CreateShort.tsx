@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import fetch from "@/utils/axios";
 import { useToast } from "@/components/ui/use-toast";
+import { HeadingTwo } from "@/components/typography";
 
 function CreateShort() {
   const { userState } = useMain();
@@ -56,8 +57,8 @@ function CreateShort() {
   };
 
   return (
-    <div className="w-full flex flex-col justify-center items-center gap-5 createshort">
-      <h2 className="text-3xl sm:text-6xl font-bold">Generate shorten link</h2>
+    <div className="w-full flex flex-col justify-center items-center gap-2 sm:gap-5 createshort">
+      <HeadingTwo className="border-none sm:text-5xl">Generate shorten link</HeadingTwo>
       <form
         className="flex w-full max-w-5xl items-center space-x-2 flex-col gap-2 sm:flex-row"
         onSubmit={generateShortLink}
