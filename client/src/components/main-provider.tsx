@@ -1,6 +1,7 @@
 import auth from "@/utils/auth";
 import { getFromLocalStorage } from "@/utils/localstorage";
 import { createContext, useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export type UserState = {
   email: string;
@@ -36,17 +37,30 @@ const initialState: MainProviderContextType = {
   setUserState: () => {},
 };
 
+function resetState(stateSetter: any) {
+  stateSetter({ ...initialState });
+}
+
 const MainProviderContext = createContext(initialState);
 
 export function MainProvider({ children, ...props }: MainProviderProps) {
   const [userState, setUserState] = useState(initialUserState);
+  const navigate = useNavigate();
 
   useEffect(() => {
     (async () => {
       const token = getFromLocalStorage("userToken");
       if (token) {
         const userData = await auth(token);
+        if (!userData) {
+          resetState(setUserState);
+          navigate("/");
+          return;
+        }
         setUserState({ ...userData, login: true });
+      }else{
+        resetState(setUserState);
+        navigate("/");
       }
     })();
   }, []);

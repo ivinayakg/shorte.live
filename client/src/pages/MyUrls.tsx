@@ -16,7 +16,6 @@ function MyUrls() {
   const deleteRef = useRef<HTMLButtonElement>();
   const { toast } = useToast();
   const location = useLocation();
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (userState.login && location.pathname === "/my-urls") {
@@ -34,8 +33,6 @@ function MyUrls() {
         }
       })();
     }
-
-    if (!userState.login) navigate("/");
   }, [location.pathname, userState.login]);
 
   return (

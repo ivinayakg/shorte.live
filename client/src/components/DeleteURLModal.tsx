@@ -38,7 +38,7 @@ function DeleteURL(
         duration: 2000,
       });
       setTimeout(() => {
-        navigate("/my-urls");
+        navigate(0);
       }, 2000);
     }
   };

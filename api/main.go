@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
+	"github.com/ivinayakg/shorte.live/api/controllers"
 	"github.com/ivinayakg/shorte.live/api/helpers"
 	"github.com/ivinayakg/shorte.live/api/middleware"
 	"github.com/ivinayakg/shorte.live/api/routes"
@@ -19,6 +20,7 @@ func setupRoutes(router *mux.Router) {
 	routes.UserRoutes(router.PathPrefix("/user").Subrouter())
 	routes.URLResolveRoutes(router)
 	routes.URLRoutes(router.PathPrefix("/url").Subrouter())
+	router.HandleFunc("/system/available", controllers.SystemAvailable).Methods("GET")
 }
 
 func main() {

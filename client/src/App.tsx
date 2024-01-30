@@ -8,6 +8,7 @@ import MyUrls from "@/pages/MyUrls";
 import Header from "@/components/Header";
 import CreateShort from "@/pages/CreateShort";
 import NotFound from "@/pages/NotFound";
+import Maintenance from "@/pages/Maintenance";
 
 const router = createBrowserRouter([
   {
@@ -26,6 +27,10 @@ const router = createBrowserRouter([
         path: "/not-found/redirect",
         element: <NotFound />,
       },
+      {
+        path: "/maintenance",
+        element: <Maintenance />,
+      },
     ],
   },
   {
@@ -36,22 +41,20 @@ const router = createBrowserRouter([
 
 function Main() {
   return (
-    <>
+    <MainProvider>
       <Header />
       <Outlet />
-    </>
+    </MainProvider>
   );
 }
 
 function App() {
   return (
     <>
-      <MainProvider>
-        <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-          <RouterProvider router={router} />
-          <Toaster />
-        </ThemeProvider>
-      </MainProvider>
+      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+        <RouterProvider router={router} />
+        <Toaster />
+      </ThemeProvider>
     </>
   );
 }
