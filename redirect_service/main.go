@@ -29,6 +29,13 @@ func ResolveURL(w http.ResponseWriter, r *http.Request) {
 	urlExpiredOrNotFound := true
 	var err error
 
+	systemNotAvailable := helpers.SystemUnderMaintenance()
+	if systemNotAvailable {
+		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+		http.Redirect(w, r, os.Getenv("FRONTEND_URL_MAINTENANCE"), http.StatusMovedPermanently)
+		return
+	}
+
 	defaultLimit, found := helpers.GetRateConfig(false).Limit["dynamic"]
 	if !found {
 		defaultLimit = &helpers.URLLimit{Value: 100, Expiry: 30}
