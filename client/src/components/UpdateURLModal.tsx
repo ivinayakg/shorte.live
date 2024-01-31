@@ -28,10 +28,10 @@ function UpdateURL(
   ref: any
 ) {
   const side = "right";
-  const date = new Date(urlObj?.expiry);
-  const customShort = urlObj?.short.split(
-    import.meta.env.VITE_REDIRECT_URL_BASE + "/"
-  )[1];
+  const date = new Date(urlObj?.expiry * 1000);
+  // const customShort = urlObj?.short.split(
+  //   import.meta.env.VITE_REDIRECT_URL_BASE + "/"
+  // )[1];
   const navigate = useNavigate();
   const { toast } = useToast();
   const updateURLForm = async (e: any) => {
@@ -68,6 +68,8 @@ function UpdateURL(
     }
   };
 
+  const defaultTimeInputValue = urlObj ? date?.toISOString().slice(0, 16) : "";
+
   return (
     <>
       <Sheet key={side}>
@@ -92,9 +94,12 @@ function UpdateURL(
             </div>
             <div className="grid grid-rows-2 items-center gap-4">
               <Label className="text-left">
-                Custom Short - <i>{customShort}</i>
+                Custom Short - <i>{urlObj?.short}</i>
               </Label>
-              <Input name="short" className="col-span-3" />
+              <Input
+                name="short"
+                className="col-span-3"
+              />
             </div>
             <div className="grid grid-rows-2 items-center gap-4">
               <Label className="text-left">
@@ -104,7 +109,7 @@ function UpdateURL(
                 name="expiry"
                 className="col-span-3"
                 type="datetime-local"
-                // defaultValue={date.toLocaleString()}
+                defaultValue={defaultTimeInputValue}
               />
             </div>
             <SheetFooter>
