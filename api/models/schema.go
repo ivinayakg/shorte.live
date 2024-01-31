@@ -16,7 +16,8 @@ type User struct {
 }
 
 type URL struct {
-	User        *User              `json:"user"`
+	User        primitive.ObjectID `json:"user,omitempty" bson:"user,omitempty"`
+	UserDoc     *User              `json:"user_obj" bson:"-"`
 	Destination string             `json:"destination"`
 	Expiry      time.Time          `json:"expiry"`
 	Short       string             `json:"short"`
@@ -24,11 +25,11 @@ type URL struct {
 	LastVisited time.Time          `json:"lastVisited"`
 }
 
-type URLDoc struct {
-	User        primitive.ObjectID `json:"user,omitempty" bson:"user,omitempty"`
-	Destination string             `json:"destination" validate:"required"`
-	Expiry      time.Time          `json:"expiry" validate:"required"`
-	Short       string             `json:"short" validate:"required"`
-	ID          primitive.ObjectID `json:"_id,omitempty"  bson:"_id,omitempty"`
-	LastVisited time.Time          `json:"lastVisited"`
-}
+// type URLDoc struct {
+// 	User        primitive.ObjectID `json:"user,omitempty" bson:"user,omitempty"`
+// 	Destination string             `json:"destination" validate:"required"`
+// 	Expiry      time.Time          `json:"expiry" validate:"required"`
+// 	Short       string             `json:"short" validate:"required"`
+// 	ID          primitive.ObjectID `json:"_id,omitempty"  bson:"_id,omitempty"`
+// 	LastVisited time.Time          `json:"lastVisited"`
+// }
