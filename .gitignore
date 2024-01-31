@@ -1,4 +1,4 @@
 .env
-__debug_bin.exe
+__debug_bin*.exe
 node_modules
 go.work

@@ -10,11 +10,10 @@ export default async function (token: string) {
   });
   if (res.status !== 200) {
     setInLocalStorage("userToken", null);
-    return null;
   } else {
     setInLocalStorage("userToken", token);
   }
-  return res.data;
+  return res;
 }
 
 function AuthComponent() {

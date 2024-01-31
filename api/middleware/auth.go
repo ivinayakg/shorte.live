@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -26,6 +27,13 @@ func Authentication(next http.Handler) http.Handler {
 			return
 		}
 		token := tokenHeader[1]
+
+		systemNotAvailable := helpers.SystemUnderMaintenance()
+		if systemNotAvailable {
+			error := fmt.Errorf("system is under maintenance")
+			helpers.SendJSONError(w, http.StatusServiceUnavailable, error.Error())
+			return
+		}
 
 		verifyUserData, err := utils.VerifyJwt(token)
 		if err != nil {

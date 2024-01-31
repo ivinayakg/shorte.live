@@ -2,6 +2,7 @@ import auth from "@/utils/auth";
 import { getFromLocalStorage } from "@/utils/localstorage";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
 
 export type UserState = {
   email: string;
@@ -46,21 +47,39 @@ const MainProviderContext = createContext(initialState);
 export function MainProvider({ children, ...props }: MainProviderProps) {
   const [userState, setUserState] = useState(initialUserState);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
     (async () => {
-      const token = getFromLocalStorage("userToken");
-      if (token) {
-        const userData = await auth(token);
-        if (!userData) {
+      try {
+        const token = getFromLocalStorage("userToken");
+        if (token) {
+          const response = await auth(token);
+          if (response?.status !== 200) {
+            resetState(setUserState);
+            navigate("/");
+          } else {
+            setUserState({ ...response.data, login: true });
+            toast({
+              title: "Logged in Successfully",
+              duration: 2000,
+            });
+          }
+        } else {
           resetState(setUserState);
           navigate("/");
-          return;
         }
-        setUserState({ ...userData, login: true });
-      }else{
-        resetState(setUserState);
-        navigate("/");
+      } catch (e: any) {
+        if (typeof e === "string") toast({ title: e, duration: 2000 });
+        if (e?.name === "AxiosError") {
+          if (e?.response?.status === 503) {
+            navigate("/maintenance");
+            toast({
+              title: "Server is down, try again later",
+              duration: 2000,
+            });
+          }
+        }
       }
     })();
   }, []);
