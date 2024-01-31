@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useMain } from "@/components/main-provider";
 import { useEffect, useRef, useState } from "react";
 import fetch from "@/utils/axios";
