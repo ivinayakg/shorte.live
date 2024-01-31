@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/gorilla/mux v1.8.1
-	github.com/ivinayakg/shorte.live/api v0.0.0-20240131150434-82be05beb442
+	github.com/ivinayakg/shorte.live/api v0.0.0-20240131204828-141063de6c82
 	github.com/joho/godotenv v1.5.1
 	go.mongodb.org/mongo-driver v1.13.1
 )
