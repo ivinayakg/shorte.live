@@ -25,7 +25,7 @@ func RedirectHome(w http.ResponseWriter, r *http.Request) {
 }
 
 func ResolveURL(w http.ResponseWriter, r *http.Request) {
-	url := &models.URLDoc{}
+	url := &models.URL{}
 	urlExpiredOrNotFound := true
 	var err error
 

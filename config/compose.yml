@@ -8,6 +8,6 @@ services:
 
   mongodb:
     image: mongo:latest
-    container_name: tiny-url-mongodb
+    container_name: short-url-mongodb
     ports:
       - "27017:27017"

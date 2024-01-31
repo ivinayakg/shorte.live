@@ -76,16 +76,16 @@ func ShortenURL(w http.ResponseWriter, r *http.Request) {
 		body.Expiry = 24
 	}
 
-	tinyUrl, err := models.CreateURL(userData, body.CustomShort, body.Destination, body.Expiry)
+	shortedURL, err := models.CreateURL(userData, body.CustomShort, body.Destination, body.Expiry)
 	if err != nil {
 		helpers.SendJSONError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	resp := ShortenURLReponse{
-		Destination: tinyUrl.Destination,
-		CustomShort: tinyUrl.Short,
-		Expiry:      tinyUrl.Expiry,
+		Destination: shortedURL.Destination,
+		CustomShort: shortedURL.Short,
+		Expiry:      shortedURL.Expiry,
 	}
 
 	helpers.SetHeaders("post", w, http.StatusCreated)
@@ -93,7 +93,7 @@ func ShortenURL(w http.ResponseWriter, r *http.Request) {
 }
 
 func ResolveURL(w http.ResponseWriter, r *http.Request) {
-	url := &models.URLDoc{}
+	url := &models.URL{}
 	urlExpiredOrNotFound := true
 	var err error
 
@@ -197,7 +197,7 @@ func UpdateUrl(w http.ResponseWriter, r *http.Request) {
 			helpers.SendJSONError(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		expiry = parsedDatetime
+		expiry = parsedDatetime.In(time.UTC)
 	}
 
 	url, err := models.GetURL("", urlId)
