@@ -103,3 +103,7 @@ func ValidShortString(short *string) bool {
 	re := regexp.MustCompile(`[/@&?#]`)
 	return !re.MatchString(*short)
 }
+
+func LowestUnixTime() int64 {
+	return time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC).Unix()
+}

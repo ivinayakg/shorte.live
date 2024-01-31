@@ -1,10 +1,10 @@
 package models
 
 import (
-	"time"
-
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
+
+type UnixTime int64
 
 type User struct {
 	Name      string             `json:"name" validate:"required"`
@@ -12,24 +12,16 @@ type User struct {
 	Picture   string             `json:"picture" validate:"required"`
 	Token     string             `json:"token" bson:"-"`
 	ID        primitive.ObjectID `json:"_id,omitempty"  bson:"_id,omitempty"`
-	CreatedAt time.Time          `json:"created_at" validate:"required"`
+	CreatedAt UnixTime           `json:"created_at" validate:"required"`
 }
 
 type URL struct {
 	User        primitive.ObjectID `json:"user,omitempty" bson:"user,omitempty"`
 	UserDoc     *User              `json:"user_obj" bson:"-"`
-	Destination string             `json:"destination"`
-	Expiry      time.Time          `json:"expiry"`
-	Short       string             `json:"short"`
-	ID          primitive.ObjectID `json:"_id"`
-	LastVisited time.Time          `json:"lastVisited"`
+	Destination string             `json:"destination" validate:"required"`
+	Expiry      UnixTime           `json:"expiry" validate:"required"`
+	Short       string             `json:"short" validate:"required"`
+	ID          primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+	LastVisited UnixTime           `json:"last_visited"`
+	CreatedAt   UnixTime           `json:"created_at"`
 }
-
-// type URLDoc struct {
-// 	User        primitive.ObjectID `json:"user,omitempty" bson:"user,omitempty"`
-// 	Destination string             `json:"destination" validate:"required"`
-// 	Expiry      time.Time          `json:"expiry" validate:"required"`
-// 	Short       string             `json:"short" validate:"required"`
-// 	ID          primitive.ObjectID `json:"_id,omitempty"  bson:"_id,omitempty"`
-// 	LastVisited time.Time          `json:"lastVisited"`
-// }

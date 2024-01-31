@@ -41,14 +41,18 @@ function UpdateURL(
     const request = {
       destination: formData.get("destination"),
       short: formData.get("short"),
-      expiry: formData.get("expiry"),
+      expiryStr: formData.get("expiry"),
+      expiry: 0,
     };
 
     if (request.short == "") request.short = null;
-    if (request.expiry == "") request.expiry = null;
+    if (request.expiryStr == "") request.expiryStr = null;
 
-    if (request.expiry && typeof request.expiry == "string")
-      request.expiry = new Date(request.expiry).toISOString();
+    if (request.expiryStr && typeof request.expiryStr == "string") {
+      request.expiry = Number(
+        (new Date(request.expiryStr).getTime() / 1000).toFixed()
+      );
+    }
 
     const res = await fetch.patch(`/url/${urlObj._id}`, request, {
       headers: { Authorization: `Bearer ${userState.token}` },

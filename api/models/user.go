@@ -11,7 +11,7 @@ import (
 )
 
 func CreateUser(email string, name string, picture string) (*User, error) {
-	createdAt := time.Now().In(time.UTC)
+	createdAt := UnixTime(time.Now().Unix())
 	user := User{Name: name, Email: email, Picture: picture, CreatedAt: createdAt}
 	ctx := context.TODO()
 

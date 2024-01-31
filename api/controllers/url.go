@@ -21,18 +21,18 @@ import (
 type ShortenURLRequest struct {
 	Destination string `json:"destination"`
 	CustomShort string `json:"short"`
-	Expiry      int32  `json:"expiry"`
+	Expiry      int64  `json:"expiry"`
 }
 
 type ShortenURLReponse struct {
-	Destination string    `json:"destination"`
-	CustomShort string    `json:"short"`
-	Expiry      time.Time `json:"expiry"`
+	Destination string `json:"destination"`
+	CustomShort string `json:"short"`
+	Expiry      int64  `json:"expiry"`
 }
 
 type UpdateURLRequest struct {
 	CustomShort string `json:"short"`
-	Expiry      string `json:"expiry"`
+	Expiry      int64  `json:"expiry"`
 	Destination string `json:"destination"`
 }
 
@@ -72,8 +72,8 @@ func ShortenURL(w http.ResponseWriter, r *http.Request) {
 	// enforce https, SSL
 	body.Destination = helpers.EnforceHTTP(body.Destination)
 
-	if body.Expiry == 0 {
-		body.Expiry = 24
+	if body.Expiry < helpers.LowestUnixTime() {
+		body.Expiry = time.Now().Add(time.Hour * 48).Unix()
 	}
 
 	shortedURL, err := models.CreateURL(userData, body.CustomShort, body.Destination, body.Expiry)
@@ -85,7 +85,7 @@ func ShortenURL(w http.ResponseWriter, r *http.Request) {
 	resp := ShortenURLReponse{
 		Destination: shortedURL.Destination,
 		CustomShort: shortedURL.Short,
-		Expiry:      shortedURL.Expiry,
+		Expiry:      int64(shortedURL.Expiry),
 	}
 
 	helpers.SetHeaders("post", w, http.StatusCreated)
@@ -130,7 +130,7 @@ func ResolveURL(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if url.ID != primitive.NilObjectID && !revalidateCache {
-		if !currentTime.After(url.Expiry) {
+		if !currentTime.After(time.Unix(int64(url.Expiry), 0)) {
 			urlExpiredOrNotFound = false
 		}
 	} else {
@@ -140,9 +140,9 @@ func ResolveURL(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if err != mongo.ErrNoDocuments && !currentTime.After(url.Expiry) {
+		if err != mongo.ErrNoDocuments && !currentTime.After(time.Unix(int64(url.Expiry), 0)) {
 			urlExpiredOrNotFound = false
-			go helpers.Redis.SetJSON(urlShort, url, time.Until(url.Expiry))
+			go helpers.Redis.SetJSON(urlShort, url, time.Until(time.Unix(int64(url.Expiry), 0)))
 		}
 	}
 
@@ -190,16 +190,6 @@ func UpdateUrl(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var expiry time.Time
-	if reqData.Expiry != "" {
-		parsedDatetime, err := time.Parse(time.RFC3339, reqData.Expiry)
-		if err != nil {
-			helpers.SendJSONError(w, http.StatusBadRequest, err.Error())
-			return
-		}
-		expiry = parsedDatetime.In(time.UTC)
-	}
-
 	url, err := models.GetURL("", urlId)
 	if err != nil && err != mongo.ErrNoDocuments {
 		helpers.SendJSONError(w, http.StatusBadRequest, err.Error())
@@ -212,7 +202,9 @@ func UpdateUrl(w http.ResponseWriter, r *http.Request) {
 	if reqData.Destination == "" {
 		reqData.Destination = url.Destination
 	}
-	if reqData.Expiry == "" {
+
+	var expiry = models.UnixTime(reqData.Expiry)
+	if reqData.Expiry < helpers.LowestUnixTime() {
 		expiry = url.Expiry
 	}
 

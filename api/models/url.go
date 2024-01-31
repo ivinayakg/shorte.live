@@ -13,7 +13,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-func CreateURL(user *User, short string, destination string, expiry int32) (*URL, error) {
+func CreateURL(user *User, short string, destination string, expiry int64) (*URL, error) {
 	url := new(URL)
 
 	if short != "" {
@@ -35,8 +35,9 @@ func CreateURL(user *User, short string, destination string, expiry int32) (*URL
 	url.User = user.ID
 	url.Short = short
 	url.Destination = destination
-	url.Expiry = time.Now().Add(time.Duration(expiry) * 3600 * time.Second).In(time.UTC)
-	url.LastVisited = time.Now().In(time.UTC)
+	url.Expiry = UnixTime(expiry)
+	url.LastVisited = UnixTime(time.Now().Unix())
+	url.CreatedAt = UnixTime(time.Now().Unix())
 	url.ID = primitive.NilObjectID
 	ctx := context.TODO()
 
@@ -109,7 +110,7 @@ func GetUserURL(userId primitive.ObjectID) ([]*URL, error) {
 	return results, nil
 }
 
-func UpdateUserURL(userId primitive.ObjectID, urlId string, newShort string, destination string, expiry time.Time) error {
+func UpdateUserURL(userId primitive.ObjectID, urlId string, newShort string, destination string, expiry UnixTime) error {
 	urlObjectId, err := primitive.ObjectIDFromHex(urlId)
 	if err != nil {
 		fmt.Println(err)

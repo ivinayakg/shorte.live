@@ -62,7 +62,7 @@ func ResolveURL(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if url.ID != primitive.NilObjectID && !revalidateCache {
-		if !currentTime.After(url.Expiry) {
+		if !currentTime.After(time.Unix(int64(url.Expiry), 0)) {
 			urlExpiredOrNotFound = false
 		}
 	} else {
@@ -72,9 +72,9 @@ func ResolveURL(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if err != mongo.ErrNoDocuments && !currentTime.After(url.Expiry) {
+		if err != mongo.ErrNoDocuments && !currentTime.After(time.Unix(int64(url.Expiry), 0)) {
 			urlExpiredOrNotFound = false
-			go helpers.Redis.SetJSON(urlShort, url, time.Until(url.Expiry))
+			go helpers.Redis.SetJSON(urlShort, url, time.Until(time.Unix(int64(url.Expiry), 0)))
 		}
 	}
 
@@ -85,10 +85,14 @@ func ResolveURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// go func(urlId string) {
+	// 	currTime := time.Now()
+	// 	models.UpdateUserURLVisited(urlId, currTime)
+	// }(url.ID.Hex())
+
 	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 	http.Redirect(w, r, url.Destination, http.StatusMovedPermanently)
 }
-
 func main() {
 	err := godotenv.Load(".env")
 	if err != nil {
