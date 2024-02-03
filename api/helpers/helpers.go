@@ -99,9 +99,9 @@ func TimeRemaining(duration time.Duration) string {
 	return fmt.Sprintf("Time remaining = %02dd %02dh %02dm %02ds", days, hours, minutes, seconds)
 }
 
-func ValidShortString(short *string) bool {
+func NotValidShortString(short *string) bool {
 	re := regexp.MustCompile(`[/@&?#]`)
-	return !re.MatchString(*short)
+	return re.MatchString(*short)
 }
 
 func LowestUnixTime() int64 {

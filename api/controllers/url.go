@@ -39,7 +39,7 @@ type UpdateURLRequest struct {
 func ShortenURL(w http.ResponseWriter, r *http.Request) {
 	userData := r.Context().Value(middleware.UserAuthKey).(*models.User)
 	body := new(ShortenURLRequest)
-	preoccupiedShorts := []string{"url", "user"}
+	preoccupiedShorts := []string{"url", "user", "system"}
 
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		helpers.SendJSONError(w, http.StatusBadRequest, err.Error())
@@ -64,7 +64,7 @@ func ShortenURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if body.CustomShort != "" && helpers.ContainsString(&preoccupiedShorts, &body.CustomShort) && helpers.ValidShortString(&body.CustomShort) {
+	if body.CustomShort != "" && (helpers.ContainsString(&preoccupiedShorts, &body.CustomShort) || helpers.NotValidShortString(&body.CustomShort)) {
 		helpers.SendJSONError(w, http.StatusBadRequest, fmt.Errorf("can't use this short").Error())
 		return
 	}
@@ -191,7 +191,7 @@ func UpdateUrl(w http.ResponseWriter, r *http.Request) {
 	}
 
 	url, err := models.GetURL("", urlId)
-	if err != nil && err != mongo.ErrNoDocuments {
+	if err != nil {
 		helpers.SendJSONError(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -225,10 +225,11 @@ func DeleteUrl(w http.ResponseWriter, r *http.Request) {
 	urlId := vars["id"]
 
 	url, err := models.GetURL("", urlId)
-	if err != nil && err != mongo.ErrNoDocuments {
+	if err != nil {
 		helpers.SendJSONError(w, http.StatusBadRequest, err.Error())
 		return
 	}
+
 	if err := models.DeleteURL(userData.ID, urlId); err != nil {
 		helpers.SendJSONError(w, http.StatusBadRequest, err.Error())
 		return

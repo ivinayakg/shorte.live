@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"time"
@@ -119,13 +120,24 @@ func UpdateUserURL(userId primitive.ObjectID, urlId string, newShort string, des
 
 	ctx := context.TODO()
 	urlFilter := bson.M{"user": userId, "_id": urlObjectId}
+
+	// Check if the document exists
+	count, err := helpers.CurrentDb.Url.CountDocuments(ctx, urlFilter)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	if count == 0 {
+		fmt.Println("URL Document not found")
+		return errors.New("URL document not found")
+	}
+
 	updateData := bson.M{"$set": bson.M{"short": newShort, "destination": destination, "expiry": expiry}}
 
 	res, err := helpers.CurrentDb.Url.UpdateOne(ctx, urlFilter, updateData)
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			fmt.Println("URL Document not found")
-		} else if writeError, ok := err.(mongo.WriteException); ok && writeError.WriteErrors[0].Code == 11000 {
+		if writeError, ok := err.(mongo.WriteException); ok && writeError.WriteErrors[0].Code == 11000 {
 			fmt.Println(err)
 			return fmt.Errorf("URL custom short is already in user")
 		} else {

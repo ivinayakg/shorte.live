@@ -9,11 +9,11 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-type redisDB struct {
+type RedisDB struct {
 	Client *redis.Client
 }
 
-var Redis redisDB
+var Redis = &RedisDB{}
 
 func RedisSetup() {
 	opt, err := redis.ParseURL(os.Getenv("REDIS_URL"))
@@ -24,7 +24,7 @@ func RedisSetup() {
 	Redis.Client = redis.NewClient(opt)
 }
 
-func (r redisDB) SetJSON(key string, value interface{}, expiry time.Duration) error {
+func (r RedisDB) SetJSON(key string, value interface{}, expiry time.Duration) error {
 	p, err := json.Marshal(value)
 	if err != nil {
 		return err
@@ -32,7 +32,7 @@ func (r redisDB) SetJSON(key string, value interface{}, expiry time.Duration) er
 	return r.Client.Set(context.Background(), key, p, expiry).Err()
 }
 
-func (r redisDB) GetJSON(key string, dest interface{}) error {
+func (r RedisDB) GetJSON(key string, dest interface{}) error {
 	p, err := r.Client.Get(context.Background(), key).Result()
 	if err != nil {
 		return err
