@@ -21,7 +21,7 @@ type SystemConfig struct {
 const SystemConfigName SystemConfigKey = "system_limit_config"
 const SystemConfigNameCacheKey SystemConfigKey = "cached_system_limit_config"
 
-func getDefaultSystemConfig() *SystemConfig {
+func GetDefaultSystemConfig() *SystemConfig {
 	return &SystemConfig{
 		Name:        SystemConfigName,
 		Maintenance: false,
@@ -48,7 +48,7 @@ func GetSystemConfig(revalidateCache bool) *SystemConfig {
 		}
 
 		if err == mongo.ErrNoDocuments {
-			defaultSystemConfig := getDefaultSystemConfig()
+			defaultSystemConfig := GetDefaultSystemConfig()
 			res, err := CurrentDb.Config.InsertOne(context.Background(), defaultSystemConfig)
 			if err != nil {
 				fmt.Println(err)

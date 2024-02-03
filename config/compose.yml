@@ -1,13 +1,14 @@
 version: "3"
+name: short.live
 
 services:
   redis:
     image: "redis:latest"
     ports:
-      - "6379:6379"
+      - "6349:6379"
 
   mongodb:
     image: mongo:latest
     container_name: short-url-mongodb
     ports:
-      - "27017:27017"
+      - "27546:27017"
