@@ -10,6 +10,9 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./api
 
     services:
       mongodb:
@@ -27,8 +30,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Change to the API directory
-        run: cd api
+  
       - name: Setup Go ${{ matrix.go-version }}
         uses: actions/setup-go@v4
         with:
