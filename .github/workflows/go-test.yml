@@ -34,6 +34,10 @@ jobs:
         with:
           go-version: ${{ matrix.go-version }}
 
+      - name: Print Current Directory
+        run: |
+          echo "Current Directory: $(pwd)"
+
       - name: Install dependencies
         run: go mod download
 
