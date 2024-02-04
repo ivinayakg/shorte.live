@@ -49,7 +49,4 @@ jobs:
       - name: Run tests unit
         run: go test -v ./tests/unit
 
-      - name: Clean up PostgreSQL and Redis containers
-        run: |
-          docker stop postgres
-          docker stop redis
+     
