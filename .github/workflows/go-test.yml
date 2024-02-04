@@ -26,10 +26,9 @@ jobs:
         go-version: [ '1.20' ]
 
     steps:
+      - uses: actions/checkout@v4
       - name: Change to the API directory
         run: cd api
-
-      - uses: actions/checkout@v4
       - name: Setup Go ${{ matrix.go-version }}
         uses: actions/setup-go@v4
         with:
