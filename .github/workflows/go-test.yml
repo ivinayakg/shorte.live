@@ -1,0 +1,67 @@
+name: Go Test
+
+on:
+  # push:
+  #   branches: [ "v2" ]
+  pull_request:
+    branches: ["v2"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    env:
+      POSTGRES_USER: your_user
+      POSTGRES_PASSWORD: your_password
+      POSTGRES_DB: your_database
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
+
+      REDIS_URL: redis://localhost:6379
+      DB_URL: postgres://${{ env.POSTGRES_USER }}:${{ env.POSTGRES_PASSWORD }}@${{ env.POSTGRES_HOST }}:${{ env.POSTGRES_PORT }}/${{ env.POSTGRES_DB }}?sslmode=disable
+
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: ${{ env.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ env.POSTGRES_DB }}
+        ports:
+          - ${{ env.POSTGRES_PORT }}:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+      redis:
+        image: redis:latest
+        ports:
+          - ${{ env.REDIS_PORT }}:6379
+        options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.x # Specify the Go version you want to use
+
+      - name: Change to the API directory
+        run: cd api
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Run tests integration
+        run: go test -v -tags=postgres,redis ./tests/integration
+
+      - name: Run tests unit
+        run: go test -v ./tests/integration
+
+      - name: Clean up PostgreSQL and Redis containers
+        run: |
+          docker stop postgres
+          docker stop redis
