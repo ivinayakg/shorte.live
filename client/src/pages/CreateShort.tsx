@@ -26,10 +26,12 @@ function CreateShort() {
     e.preventDefault();
     const formData = new FormData(e.target);
     try {
+      const inputTime = formData.get("expiry") as string;
+      const inputTimeUnix = (new Date(inputTime).getTime() / 1000).toFixed();
       const requestData = {
         destination: formData.get("destination"),
         short: formData.get("short"),
-        expiry: 96,
+        expiry: Number(inputTimeUnix),
       };
 
       const res = await fetch.post("/url", requestData, {
@@ -42,9 +44,11 @@ function CreateShort() {
       navigator.clipboard.writeText(data.short);
       toast({
         title: "Short URL generated Successfully",
-        description: "The URL is copied to your clipboard",
+        description: `The URL is copied to your clipboard, link -> ${data.short}`,
         duration: 2000,
       });
+
+      e.target.reset();
     } catch (error: any) {
       console.error(error);
       toast({
@@ -58,7 +62,9 @@ function CreateShort() {
 
   return (
     <div className="w-full flex flex-col justify-center items-center gap-2 sm:gap-5 createshort">
-      <HeadingTwo className="border-none sm:text-5xl">Generate shorten link</HeadingTwo>
+      <HeadingTwo className="border-none sm:text-5xl">
+        Generate shorten link
+      </HeadingTwo>
       <form
         className="flex w-full max-w-5xl items-center space-x-2 flex-col gap-2 sm:flex-row"
         onSubmit={generateShortLink}
@@ -70,10 +76,18 @@ function CreateShort() {
           name="destination"
         />
         <Input
-          className="w-full sm:w-2/5 ml-0"
+          className="w-full sm:w-2/5"
           type="text"
           placeholder="Custom Short (Optional)"
           name="short"
+          style={{ margin: "0" }}
+          disabled={!userState.login}
+        />
+        <Input
+          className="w-full sm:w-2/5"
+          type="datetime-local"
+          name="expiry"
+          style={{ margin: "0" }}
           disabled={!userState.login}
         />
         {userState.login ? (
