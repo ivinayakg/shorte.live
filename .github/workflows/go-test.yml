@@ -10,47 +10,28 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    env:
-      POSTGRES_USER: your_user
-      POSTGRES_PASSWORD: your_password
-      POSTGRES_DB: your_database
-      POSTGRES_HOST: localhost
-      POSTGRES_PORT: 5432
-
-      REDIS_HOST: localhost
-      REDIS_PORT: 6379
-
-      REDIS_URL: redis://localhost:6379
-      DB_URL: postgres://${{ env.POSTGRES_USER }}:${{ env.POSTGRES_PASSWORD }}@${{ env.POSTGRES_HOST }}:${{ env.POSTGRES_PORT }}/${{ env.POSTGRES_DB }}?sslmode=disable
-
     services:
-      postgres:
-        image: postgres:latest
-        env:
-          POSTGRES_USER: ${{ env.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
-          POSTGRES_DB: ${{ env.POSTGRES_DB }}
+      mongodb:
+        image: mongo:latest
         ports:
-          - ${{ env.POSTGRES_PORT }}:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+          - 27546:27017
 
       redis:
         image: redis:latest
         ports:
-          - ${{ env.REDIS_PORT }}:6379
-        options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
+          - 6349:6379
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Change to the API directory
+        run: cd api
+
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.x # Specify the Go version you want to use
-
-      - name: Change to the API directory
-        run: cd api
+          go-version: 1.20 # Specify the Go version you want to use
 
       - name: Install dependencies
         run: go mod download

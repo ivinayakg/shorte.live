@@ -51,6 +51,7 @@ func TestMain(m *testing.M) {
 	TestDb = helpers.CurrentDb
 	TestRedis = helpers.Redis
 	TestDbClient = helpers.DBClient
+	// clean up database after tests
 	defer TestDbClient.Database(os.Getenv("DB_NAME")).Drop(context.Background())
 	defer TestRedis.Client.FlushAll(context.Background())
 
@@ -58,9 +59,6 @@ func TestMain(m *testing.M) {
 
 	// Run integration tests
 	exitCode := m.Run()
-
-	// Clean up
-
 	os.Exit(exitCode)
 }
 
