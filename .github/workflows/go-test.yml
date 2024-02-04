@@ -21,18 +21,19 @@ jobs:
         image: redis:latest
         ports:
           - 6349:6379
+    strategy:
+      matrix:
+        go-version: [ '1.20' ]
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
       - name: Change to the API directory
         run: cd api
 
-      - name: Set up Go
-        uses: actions/setup-go@v2
+      - uses: actions/checkout@v4
+      - name: Setup Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v4
         with:
-          go-version: 1.20 # Specify the Go version you want to use
+          go-version: ${{ matrix.go-version }}
 
       - name: Install dependencies
         run: go mod download
