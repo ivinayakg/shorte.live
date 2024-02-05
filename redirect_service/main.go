@@ -81,7 +81,7 @@ func ResolveURL(w http.ResponseWriter, r *http.Request) {
 	if urlExpiredOrNotFound || url == nil {
 		notFoundUrl := os.Getenv("UI_NOT_FOUND_URL")
 		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-		http.Redirect(w, r, notFoundUrl, http.StatusMovedPermanently)
+		http.Redirect(w, r, notFoundUrl, http.StatusTemporaryRedirect)
 		return
 	}
 

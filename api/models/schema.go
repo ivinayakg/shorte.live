@@ -22,6 +22,7 @@ type URL struct {
 	Expiry      UnixTime           `json:"expiry" validate:"required"`
 	Short       string             `json:"short" validate:"required"`
 	ID          primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
-	LastVisited UnixTime           `json:"last_visited"`
-	CreatedAt   UnixTime           `json:"created_at"`
+	UpdateAt    UnixTime           `json:"update_at" bson:"update_at"`
+	CreatedAt   UnixTime           `json:"created_at" bson:"created_at"`
+	TotalClicks int64              `json:"total_clicks" bson:"total_clicks"`
 }
