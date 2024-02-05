@@ -29,10 +29,10 @@ func TestURLResolve(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	notFoundurl := os.Getenv("FRONTEND_URL") + "/not-found/redirect"
+	destinationURL := URLFixture.Destination
 
-	assert.Equal(t, resp.StatusCode, http.StatusMovedPermanently, "Excpected status code to be 302")
-	assert.NotContains(t, resp.Header.Get("Location"), notFoundurl, "Expected not redirect to url-not-found page")
+	assert.Equal(t, resp.StatusCode, http.StatusMovedPermanently, "Excpected status code to be 301")
+	assert.Contains(t, resp.Header.Get("Location"), destinationURL, "Expected redirect to destination url")
 }
 
 func TestURLResolveNotFound(t *testing.T) {
@@ -43,7 +43,7 @@ func TestURLResolveNotFound(t *testing.T) {
 
 	notFoundurl := os.Getenv("FRONTEND_URL") + "/not-found/redirect"
 
-	assert.Equal(t, resp.StatusCode, http.StatusMovedPermanently, "Excpected status code to be 302")
+	assert.Equal(t, resp.StatusCode, http.StatusTemporaryRedirect, "Excpected status code to be 307")
 	assert.Contains(t, resp.Header.Get("Location"), notFoundurl, "Expected redirect to url-not-found page")
 }
 
@@ -55,7 +55,7 @@ func TestURLResolveExpired(t *testing.T) {
 
 	notFoundurl := os.Getenv("FRONTEND_URL") + "/not-found/redirect"
 
-	assert.Equal(t, resp.StatusCode, http.StatusMovedPermanently, "Excpected status code to be 302")
+	assert.Equal(t, resp.StatusCode, http.StatusTemporaryRedirect, "Excpected status code to be 302")
 	assert.Contains(t, resp.Header.Get("Location"), notFoundurl, "Expected redirect to url-not-found page")
 }
 
@@ -265,7 +265,7 @@ func TestCreateShortedUrlWithDuplicateShort(t *testing.T) {
 	assert.Equal(t, respBody["error"], "URL custom short is already in user", "Expected short to be already in use")
 }
 
-// uodate url
+// update url
 func TestUpdateURL(t *testing.T) {
 	// Data for the payload as a map
 	payloadData := map[string]interface{}{

@@ -37,7 +37,7 @@ func CreateURL(user *User, short string, destination string, expiry int64) (*URL
 	url.Short = short
 	url.Destination = destination
 	url.Expiry = UnixTime(expiry)
-	url.LastVisited = UnixTime(time.Now().Unix())
+	// url.UpdateAt = UnixTime(time.Now().Unix())
 	url.CreatedAt = UnixTime(time.Now().Unix())
 	url.ID = primitive.NilObjectID
 	ctx := context.TODO()

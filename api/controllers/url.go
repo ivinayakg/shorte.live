@@ -148,7 +148,7 @@ func ResolveURL(w http.ResponseWriter, r *http.Request) {
 
 	if urlExpiredOrNotFound || url == nil {
 		notFoundUrl := os.Getenv("FRONTEND_URL") + "/not-found/redirect"
-		http.Redirect(w, r, notFoundUrl, http.StatusMovedPermanently)
+		http.Redirect(w, r, notFoundUrl, http.StatusTemporaryRedirect)
 		return
 	}
 

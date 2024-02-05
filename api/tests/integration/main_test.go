@@ -32,8 +32,8 @@ var (
 var UserFixture1 = models.User{Name: "Test User 1", Email: "test1@gmail.com", Picture: "https://lh3.googleusercontent.com/a-/AOh14Gh"}
 var UserFixture2 = models.User{Name: "Test User 2", Email: "test2@gmail.com", Picture: "https://lh3.googleusercontent.com/a-/AOh14Gh"}
 
-var URLFixture = &models.URL{User: primitive.NilObjectID, Destination: "https://www.google.com", Expiry: models.UnixTime(time.Now().Add(time.Hour * 5).Unix()), Short: "test", LastVisited: models.UnixTime(time.Now().Unix()), CreatedAt: models.UnixTime(time.Now().Unix())}
-var ExpiredURLFixture = &models.URL{User: primitive.NilObjectID, Destination: "https://www.google.com", Expiry: models.UnixTime(time.Now().Add(-time.Hour).Unix()), Short: "test_expired", LastVisited: models.UnixTime(time.Now().Unix()), CreatedAt: models.UnixTime(time.Now().Unix())}
+var URLFixture = &models.URL{User: primitive.NilObjectID, Destination: "https://www.google.com", Expiry: models.UnixTime(time.Now().Add(time.Hour * 5).Unix()), Short: "test", UpdateAt: models.UnixTime(time.Now().Unix()), CreatedAt: models.UnixTime(time.Now().Unix())}
+var ExpiredURLFixture = &models.URL{User: primitive.NilObjectID, Destination: "https://www.google.com", Expiry: models.UnixTime(time.Now().Add(-time.Hour).Unix()), Short: "test_expired", UpdateAt: models.UnixTime(time.Now().Unix()), CreatedAt: models.UnixTime(time.Now().Unix())}
 
 func TestMain(m *testing.M) {
 	// Set up HTTP server
