@@ -7,9 +7,11 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/asaskevich/govalidator"
+	"github.com/avct/uasurfer"
 	"github.com/gorilla/mux"
 	"github.com/ivinayakg/shorte.live/api/helpers"
 	"github.com/ivinayakg/shorte.live/api/middleware"
@@ -147,15 +149,30 @@ func ResolveURL(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if urlExpiredOrNotFound || url == nil {
-		notFoundUrl := os.Getenv("FRONTEND_URL") + "/not-found/redirect"
+		notFoundUrl := os.Getenv("UI_NOT_FOUND_URL")
+		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 		http.Redirect(w, r, notFoundUrl, http.StatusTemporaryRedirect)
 		return
 	}
 
-	// go func(urlId string) {
-	// 	currTime := time.Now()
-	// 	models.UpdateUserURLVisited(urlId, currTime)
-	// }(url.ID.Hex())
+	go func(r *http.Request, url models.URL) {
+		userAgent := r.Header.Get("User-Agent")
+		ua := uasurfer.Parse(userAgent)
+
+		device := ua.DeviceType.String()
+		ip := strings.Split(r.Header.Get("X-Forwarded-For"), ",")[0]
+		os := ua.OS.Name.String()
+		referrer := r.Header.Get("Referer")
+		urlId := url.ID
+
+		if referrer == "" {
+			referrer = "direct"
+		}
+
+		timestamp := time.Now().Unix()
+
+		helpers.Tracker.CaptureRedirectEvent(device, ip, os, referrer, urlId, timestamp)
+	}(r, *url)
 
 	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 	http.Redirect(w, r, url.Destination, http.StatusMovedPermanently)

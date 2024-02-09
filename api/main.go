@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/ivinayakg/shorte.live/api/controllers"
@@ -40,9 +41,12 @@ func main() {
 	})
 
 	r := mux.NewRouter()
+	helpers.SetupTracker(time.Second*10, 200, 0)
 	helpers.CreateDBInstance()
 	helpers.RedisSetup()
 	r.Use(middleware.LogMW)
+
+	go helpers.Tracker.StartFlush()
 
 	setupRoutes(r)
 	routerProtected := corsHandler.Handler(r)
