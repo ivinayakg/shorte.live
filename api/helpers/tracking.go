@@ -28,6 +28,8 @@ func flushToDB(events []*bson.M) {
 	for _, data := range events {
 		urlOID, _ := (*data)["url_id"].(primitive.ObjectID)
 		(*data)["url_id"] = urlOID
+		(*data)["geo"] = ""
+
 		redirectEvents = append(redirectEvents, data)
 	}
 
