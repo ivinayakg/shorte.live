@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/ivinayakg/shorte.live/api/controllers"
@@ -30,10 +31,12 @@ func main() {
 	UI_URL = os.Getenv("UI_URL")
 
 	r := mux.NewRouter()
-
-	helpers.RedisSetup()
 	helpers.CreateDBInstance()
+	helpers.RedisSetup()
+	helpers.SetupTracker(time.Second*10, 200, 0)
 	r.Use(middleware.LogMW)
+
+	go helpers.Tracker.StartFlush()
 
 	r.HandleFunc("/", RedirectHome).Methods("GET", "POST", "PUT", "PATCH", "DELETE")
 	r.HandleFunc("/{short}", controllers.ResolveURL).Methods("GET")

@@ -41,9 +41,9 @@ func main() {
 	})
 
 	r := mux.NewRouter()
-	helpers.SetupTracker(time.Second*10, 200, 0)
 	helpers.CreateDBInstance()
 	helpers.RedisSetup()
+	helpers.SetupTracker(time.Second*10, 200, 0)
 	r.Use(middleware.LogMW)
 
 	go helpers.Tracker.StartFlush()
