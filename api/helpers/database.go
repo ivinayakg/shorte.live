@@ -12,10 +12,10 @@ import (
 )
 
 type DB struct {
-	User    *mongo.Collection
-	Url     *mongo.Collection
-	Tracker *mongo.Collection
-	Config  *mongo.Collection
+	User          *mongo.Collection
+	Url           *mongo.Collection
+	RedirectEvent *mongo.Collection
+	Config        *mongo.Collection
 }
 
 type DBIndexName string
@@ -53,7 +53,7 @@ func CreateDBInstance() {
 	dbName := os.Getenv("DB_NAME")
 	userCollName := os.Getenv("DB_USER_COLLECTION_NAME")
 	urlCollName := os.Getenv("DB_URL_COLLECTION_NAME")
-	trackerCollName := os.Getenv("DB_TRACKER_COLLECTION_NAME")
+	redirectEventCollName := os.Getenv("DB_REDIRECT_EVENT_COLLECTION_NAME")
 	configCollName := os.Getenv("DB_CONFIG_COLLECTION_NAME")
 	clientOptions := options.Client().ApplyURI(connectionString)
 
@@ -73,7 +73,7 @@ func CreateDBInstance() {
 
 	userCollection := client.Database(dbName).Collection(userCollName)
 	urlCollection := client.Database(dbName).Collection(urlCollName)
-	trackerCollection := client.Database(dbName).Collection(trackerCollName)
+	redirectEventCollection := client.Database(dbName).Collection(redirectEventCollName)
 	configCollection := client.Database(dbName).Collection(configCollName)
 
 	urlShortIndex, err := DoesIndexExist(context.Background(), urlCollection, string(UrlShortIndexName))
@@ -98,6 +98,6 @@ func CreateDBInstance() {
 		fmt.Println("URL Short Index already exists.")
 	}
 
-	CurrentDb = &DB{User: userCollection, Url: urlCollection, Tracker: trackerCollection, Config: configCollection}
+	CurrentDb = &DB{User: userCollection, Url: urlCollection, RedirectEvent: redirectEventCollection, Config: configCollection}
 	DBClient = client
 }

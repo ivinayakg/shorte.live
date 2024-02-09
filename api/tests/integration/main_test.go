@@ -36,10 +36,18 @@ var URLFixture = &models.URL{User: primitive.NilObjectID, Destination: "https://
 var ExpiredURLFixture = &models.URL{User: primitive.NilObjectID, Destination: "https://www.google.com", Expiry: models.UnixTime(time.Now().Add(-time.Hour).Unix()), Short: "test_expired", UpdateAt: models.UnixTime(time.Now().Unix()), CreatedAt: models.UnixTime(time.Now().Unix())}
 
 func TestMain(m *testing.M) {
+	teardown := setupTests()
+
+	// Run integration tests
+	exitCode := m.Run()
+	teardown()
+	os.Exit(exitCode)
+}
+
+func setupTests() func() {
 	// Set up HTTP server
 	router := setupRouter()
 	server := httptest.NewServer(router)
-	defer server.Close()
 	ServerURL = server.URL
 	err := godotenv.Load("../test.env")
 	if err != nil {
@@ -47,19 +55,22 @@ func TestMain(m *testing.M) {
 	}
 	helpers.CreateDBInstance()
 	helpers.RedisSetup()
+	helpers.SetupTracker(time.Second*2, 5, 0)
+
+	go helpers.Tracker.StartFlush()
 
 	TestDb = helpers.CurrentDb
 	TestRedis = helpers.Redis
 	TestDbClient = helpers.DBClient
 	// clean up database after tests
-	defer TestDbClient.Database(os.Getenv("DB_NAME")).Drop(context.Background())
-	defer TestRedis.Client.FlushAll(context.Background())
 
 	CreateFixtures(TestDb)
 
-	// Run integration tests
-	exitCode := m.Run()
-	os.Exit(exitCode)
+	return func() {
+		server.Close()
+		TestRedis.Client.FlushAll(context.Background())
+		TestDbClient.Database(os.Getenv("DB_NAME")).Drop(context.Background())
+	}
 }
 
 func setupRouter() *mux.Router {

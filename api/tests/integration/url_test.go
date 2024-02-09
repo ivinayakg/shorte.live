@@ -41,7 +41,7 @@ func TestURLResolveNotFound(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	notFoundurl := os.Getenv("FRONTEND_URL") + "/not-found/redirect"
+	notFoundurl := os.Getenv("UI_NOT_FOUND_URL")
 
 	assert.Equal(t, resp.StatusCode, http.StatusTemporaryRedirect, "Excpected status code to be 307")
 	assert.Contains(t, resp.Header.Get("Location"), notFoundurl, "Expected redirect to url-not-found page")
@@ -53,7 +53,7 @@ func TestURLResolveExpired(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	notFoundurl := os.Getenv("FRONTEND_URL") + "/not-found/redirect"
+	notFoundurl := os.Getenv("UI_NOT_FOUND_URL")
 
 	assert.Equal(t, resp.StatusCode, http.StatusTemporaryRedirect, "Excpected status code to be 302")
 	assert.Contains(t, resp.Header.Get("Location"), notFoundurl, "Expected redirect to url-not-found page")
