@@ -35,6 +35,8 @@ github.com/ivinayakg/shorte.live/api v0.0.0-20240209115128-24679d4dbe8a h1:V2UY7
 github.com/ivinayakg/shorte.live/api v0.0.0-20240209115128-24679d4dbe8a/go.mod h1:wVtTelsMd+LktB+KB2MthyYsW1vSRwF1miibIMmpy7Q=
 github.com/ivinayakg/shorte.live/api v0.0.0-20240209120124-9f553ea53073 h1:IyVHTnWGEjt9+EpOZRocfxDNDXNOmqGT4hmZpWr79GQ=
 github.com/ivinayakg/shorte.live/api v0.0.0-20240209120124-9f553ea53073/go.mod h1:wVtTelsMd+LktB+KB2MthyYsW1vSRwF1miibIMmpy7Q=
+github.com/ivinayakg/shorte.live/api v0.0.0-20240209123609-cee2ce887d29 h1:4ckfo7YbTNgUQkg1FGAz+HHHWv0lmrtnAGeTWDaQJZ4=
+github.com/ivinayakg/shorte.live/api v0.0.0-20240209123609-cee2ce887d29/go.mod h1:wVtTelsMd+LktB+KB2MthyYsW1vSRwF1miibIMmpy7Q=
 github.com/joho/godotenv v1.5.1 h1:7eLL/+HRGLY0ldzfGMeQkb7vMd0as4CfYvUVzLqw0N0=
 github.com/joho/godotenv v1.5.1/go.mod h1:f4LDr5Voq0i2e/R5DDNOoa2zzDfwtkZa6DnEwAbqwq4=
 github.com/klauspost/compress v1.13.6/go.mod h1:/3/Vjq9QcHkK5uEr5lBEmyoZ1iFhe47etQ6QUkpK6sk=
