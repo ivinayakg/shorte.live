@@ -55,7 +55,7 @@ function UpdateURL(
     }
 
     const res = await fetch.patch(`/url/${urlObj._id}`, request, {
-      headers: { Authorization: `Bearer ${userState.token}` },
+      withCredentials: true,
     });
     if (res.status === 204) {
       toast({

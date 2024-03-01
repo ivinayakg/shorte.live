@@ -3,7 +3,7 @@ import "./App.css";
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 import { MainProvider } from "@/components/main-provider";
 import { Toaster } from "@/components/ui/toaster";
-import { AuthComponent } from "@/utils/auth";
+// import { AuthComponent } from "@/utils/auth";
 import MyUrls from "@/pages/MyUrls";
 import Header from "@/components/Header";
 import CreateShort from "@/pages/CreateShort";
@@ -33,10 +33,10 @@ const router = createBrowserRouter([
       },
     ],
   },
-  {
-    path: "/auth/",
-    element: <AuthComponent />,
-  },
+  // {
+  //   path: "/auth/",
+  //   element: <AuthComponent />,
+  // },
 ]);
 
 function Main() {

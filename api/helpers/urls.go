@@ -30,8 +30,7 @@ func RemoverDomainError(url string) bool {
 }
 
 func BuildUrl(url string) string {
-	env := os.Getenv("ENV")
-	if env == "development" {
+	if ENV == "development" {
 		return "http://" + os.Getenv("SHORTED_URL_DOMAIN") + url
 	}
 	return "https://" + os.Getenv("SHORTED_URL_DOMAIN") + url

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/ivinayakg/shorte.live/api/constants"
 	"github.com/ivinayakg/shorte.live/api/controllers"
 	"github.com/ivinayakg/shorte.live/api/helpers"
 	"github.com/ivinayakg/shorte.live/api/middleware"
@@ -56,9 +57,10 @@ func main() {
 	}
 
 	PORT := os.Getenv("PORT")
+	helpers.ENV = os.Getenv("ENV")
 
 	go func() {
-		if os.Getenv("ENV") != "development" {
+		if os.Getenv("ENV") == string(constants.Prod) {
 			return
 		}
 		router := createRouter()

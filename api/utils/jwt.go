@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"strconv"
 	"time"
@@ -61,4 +62,45 @@ func VerifyJwt(tokenString string) (*map[string]string, error) {
 	} else {
 		return nil, fmt.Errorf("failed to extract claims from token")
 	}
+}
+
+func CreateAuthCookie(token string) *http.Cookie {
+	cookieName := os.Getenv("COOKIE_NAME")
+	var expiry = os.Getenv("JWT_EXPIRY")
+	expiryTotal, err := strconv.Atoi(expiry)
+	if err != nil {
+		fmt.Println("Error:", err)
+		expiryTotal = 21600
+	}
+
+	return &http.Cookie{
+		Name:     cookieName,
+		Value:    token,
+		MaxAge:   expiryTotal,
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteLaxMode,
+		Path:     "/",
+	}
+}
+
+func RemoveAuthCookie() *http.Cookie {
+	cookieName := os.Getenv("COOKIE_NAME")
+	return &http.Cookie{
+		Name:     cookieName,
+		Value:    "",
+		Expires:  time.Now().Add(-time.Hour),
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteLaxMode,
+	}
+}
+
+func GetCookie(r *http.Request) *http.Cookie {
+	cookieName := os.Getenv("COOKIE_NAME")
+	cookie, err := r.Cookie(cookieName)
+	if err != nil {
+		return nil
+	}
+	return cookie
 }

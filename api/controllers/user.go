@@ -97,21 +97,22 @@ func CallbackSignInWithGoogle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var token *string
+
 	if user != nil {
-		token, _ := utils.CreateJWT(user)
-		http.Redirect(w, r, fmt.Sprintf(os.Getenv("FRONTEND_AUTH_URL")+"%v", *token), http.StatusSeeOther)
-		return
+		token, _ = utils.CreateJWT(user)
 	} else {
 		user, err = models.CreateUser(googleProfile["email"].(string), googleProfile["name"].(string), googleProfile["picture"].(string))
 		if err != nil {
 			helpers.SendJSONError(w, http.StatusInternalServerError, "Internal Server Error")
 			return
 		}
-		token, _ := utils.CreateJWT(user)
-		http.Redirect(w, r, fmt.Sprintf(os.Getenv("FRONTEND_AUTH_URL")+"%v", *token), http.StatusSeeOther)
-		return
+		token, _ = utils.CreateJWT(user)
 	}
 
+	cookie := utils.CreateAuthCookie(*token)
+	http.SetCookie(w, cookie)
+	http.Redirect(w, r, os.Getenv("FRONTEND_URL"), http.StatusSeeOther)
 }
 
 func SelfUser(w http.ResponseWriter, r *http.Request) {

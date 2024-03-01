@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/ivinayakg/shorte.live/api/constants"
 	"github.com/ivinayakg/shorte.live/api/helpers"
 	"github.com/ivinayakg/shorte.live/api/models"
 	"github.com/ivinayakg/shorte.live/api/utils"
@@ -19,14 +20,26 @@ const UserAuthKey userAuth = "User"
 
 func Authentication(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		tokenHeader := strings.Split(r.Header.Get("Authorization"), "Bearer ")
-		if len(tokenHeader) < 2 {
-			errMsg := "Authentication error!, Provide valid auth token"
+		var token string
+
+		cookie := utils.GetCookie(r)
+		if cookie != nil {
+			token = cookie.Value
+		} else if helpers.ENV != string(constants.Prod) {
+			tokenHeader := strings.Split(r.Header.Get("Authorization"), "Bearer ")
+			if len(tokenHeader) < 2 {
+				errMsg := "Authentication error!, Provide valid auth token"
+				helpers.SendJSONError(w, http.StatusForbidden, errMsg)
+				log.Println(errMsg)
+				return
+			}
+			token = tokenHeader[1]
+		} else {
+			errMsg := "Authentication error!, login first"
 			helpers.SendJSONError(w, http.StatusForbidden, errMsg)
 			log.Println(errMsg)
 			return
 		}
-		token := tokenHeader[1]
 
 		systemNotAvailable := helpers.SystemUnderMaintenance(false)
 		if systemNotAvailable {
@@ -54,7 +67,9 @@ func Authentication(next http.Handler) http.Handler {
 			return
 		}
 
-		user.Token = token
+		if helpers.ENV != string(constants.Prod) {
+			user.Token = token
+		}
 
 		c := context.WithValue(r.Context(), UserAuthKey, user)
 		next.ServeHTTP(w, r.WithContext(c))

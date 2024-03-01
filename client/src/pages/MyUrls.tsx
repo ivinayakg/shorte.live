@@ -21,7 +21,7 @@ function MyUrls() {
     if (userState.login && location.pathname === "/my-urls") {
       (async () => {
         const res = await fetch.get("/url/all", {
-          headers: { Authorization: `Bearer ${userState.token}` },
+          withCredentials: true,
         });
         const data = res.data;
         setUrlsData(data);

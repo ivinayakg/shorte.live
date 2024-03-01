@@ -1,8 +1,7 @@
-import auth from "@/utils/auth";
-import { getFromLocalStorage } from "@/utils/localstorage";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
+import fetch from "@/utils/axios";
 
 export type UserState = {
   email: string;
@@ -10,7 +9,6 @@ export type UserState = {
   picture: string;
   _id: string;
   created_at: string;
-  token: string;
   login: boolean;
 };
 
@@ -29,7 +27,6 @@ const initialUserState: UserState = {
   picture: "",
   _id: "",
   created_at: "",
-  token: "",
   login: false,
 };
 
@@ -52,22 +49,18 @@ export function MainProvider({ children, ...props }: MainProviderProps) {
   useEffect(() => {
     (async () => {
       try {
-        const token = getFromLocalStorage("userToken");
-        if (token) {
-          const response = await auth(token);
-          if (response?.status !== 200) {
-            resetState(setUserState);
-            navigate("/");
-          } else {
-            setUserState({ ...response.data, login: true });
-            toast({
-              title: "Logged in Successfully",
-              duration: 2000,
-            });
-          }
-        } else {
+        const response = await fetch.get("/user/self", {
+          withCredentials: true,
+        });
+        if (response?.status !== 200) {
           resetState(setUserState);
           navigate("/");
+        } else {
+          setUserState({ ...response.data, login: true });
+          toast({
+            title: "Logged in Successfully",
+            duration: 2000,
+          });
         }
       } catch (e: any) {
         if (typeof e === "string") toast({ title: e, duration: 2000 });

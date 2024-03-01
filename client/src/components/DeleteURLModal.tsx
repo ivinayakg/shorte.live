@@ -30,7 +30,7 @@ function DeleteURL(
   const { toast } = useToast();
   const deleteURLForm = async () => {
     const res = await fetch.delete(`/url/${urlObj._id}`, {
-      headers: { Authorization: `Bearer ${userState.token}` },
+      withCredentials: true,
     });
     if (res.status === 204) {
       toast({
