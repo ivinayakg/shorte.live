@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
 	"regexp"
 	"strings"
 	"time"
@@ -21,29 +20,6 @@ var methodChoices = map[string]string{
 	"del":   "DELETE",
 }
 
-func EnforceHTTP(url string) string {
-	if url[:4] != "http" {
-		return "https://" + url
-	}
-	return url
-}
-
-func RemoverDomainError(url string) bool {
-	if url == os.Getenv("DOMAIN") {
-		return false
-	}
-
-	newUrl := strings.Replace(url, "http://", "", 1)
-	newUrl = strings.Replace(newUrl, "https://", "", 1)
-	newUrl = strings.Replace(newUrl, "www.", "", 1)
-	newUrl = strings.Split(newUrl, "/")[0]
-
-	if newUrl == os.Getenv("DOMAIN") {
-		return false
-	}
-
-	return true
-}
 func SetHeaders(type_ string, w http.ResponseWriter, status int) {
 	method := methodChoices[type_]
 	if method == "" {

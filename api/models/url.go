@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/google/uuid"
@@ -50,7 +49,7 @@ func CreateURL(user *User, short string, destination string, expiry int64) (*URL
 	url.ID = res.InsertedID.(primitive.ObjectID)
 	fmt.Printf("URL created with id %v\n", url.ID)
 
-	url.Short = os.Getenv("SHORTED_URL_DOMAIN") + "/" + url.Short
+	url.Short = helpers.BuildUrl("/" + url.Short)
 	url.UserDoc = user
 
 	return url, nil
@@ -100,7 +99,7 @@ func GetUserURL(userId primitive.ObjectID) ([]*URL, error) {
 		if e != nil {
 			fmt.Println(err)
 		}
-		result.Short = os.Getenv("SHORTED_URL_DOMAIN") + "/" + result.Short
+		result.Short = helpers.BuildUrl("/" + result.Short)
 		results = append(results, &result)
 	}
 
