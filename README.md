@@ -67,4 +67,10 @@
 ## Contribution
 
 - Hey, thank you for wanting to contribute to this project. This project is really special to me, so my sincere gratitude to you for interacting with this project to whatever extent you have. Thank you.
-- You can start with contributing from [here]()
+- You can start with contributing from [here](https://github.com/ivinayakg/shorte.live/blob/v2/contributing.md)
+
+## Note
+
+- You can reach out to me for discussion or help. (Please keep things professional and straight, don't waste my time)
+- Discord : `ivinayakg`
+- Email : `vinayak20029@gmail.com`
