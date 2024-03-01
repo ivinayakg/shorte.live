@@ -26,14 +26,7 @@ func setupRoutes(router *mux.Router) {
 	router.HandleFunc("/", controllers.RedirectHome).Methods("GET", "POST", "PATCH", "DELETE")
 }
 
-func main() {
-	err := godotenv.Load(".env")
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	PORT := os.Getenv("PORT")
-
+func createRouter() *http.Handler {
 	allowed_origins := strings.Split(os.Getenv("ALLOWED_ORIGINS"), " ")
 	corsHandler := cors.New(cors.Options{
 		AllowedOrigins:   allowed_origins,
@@ -53,8 +46,27 @@ func main() {
 
 	setupRoutes(r)
 	routerProtected := corsHandler.Handler(r)
+	return &routerProtected
+}
 
+func main() {
+	err := godotenv.Load(".env")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	PORT := os.Getenv("PORT")
+
+	go func() {
+		if os.Getenv("ENV") != "development" {
+			return
+		}
+		router := createRouter()
+		fmt.Println("Starting the server on port " + "5100")
+		log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", 5100), *router))
+	}()
+
+	router := createRouter()
 	fmt.Println("Starting the server on port " + PORT)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", PORT), routerProtected))
-
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", PORT), *router))
 }
