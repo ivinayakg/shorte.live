@@ -37,8 +37,8 @@ function MyUrls() {
 
   return (
     <div className="py-5">
-      <UpdateURLModal urlObj={urlObj} userState={userState} ref={editRef} />
-      <DeleteURLModal urlObj={urlObj} userState={userState} ref={deleteRef} />
+      <UpdateURLModal urlObj={urlObj} ref={editRef} />
+      <DeleteURLModal urlObj={urlObj} ref={deleteRef} />
       <HeadingOne className="font-bold mb-3">Your URLs</HeadingOne>
       <div className="flex flex-col justify-center items-center gap-4">
         {urlsData?.map((url: any) => {

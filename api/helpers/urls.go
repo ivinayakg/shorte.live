@@ -3,6 +3,8 @@ package helpers
 import (
 	"os"
 	"strings"
+
+	"github.com/ivinayakg/shorte.live/api/constants"
 )
 
 func EnforceHTTP(url string) string {
@@ -30,7 +32,7 @@ func RemoverDomainError(url string) bool {
 }
 
 func BuildUrl(url string) string {
-	if ENV == "development" {
+	if ENV != string(constants.Prod) {
 		return "http://" + os.Getenv("SHORTED_URL_DOMAIN") + url
 	}
 	return "https://" + os.Getenv("SHORTED_URL_DOMAIN") + url

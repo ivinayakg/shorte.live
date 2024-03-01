@@ -20,10 +20,8 @@ import { Input } from "@/components/ui/input";
 function UpdateURL(
   {
     urlObj,
-    userState,
   }: {
     urlObj: any;
-    userState: UserState;
   },
   ref: any
 ) {
@@ -96,10 +94,7 @@ function UpdateURL(
               <Label className="text-left">
                 Custom Short - <i>{urlObj?.short}</i>
               </Label>
-              <Input
-                name="short"
-                className="col-span-3"
-              />
+              <Input name="short" className="col-span-3" />
             </div>
             <div className="grid grid-rows-2 items-center gap-4">
               <Label className="text-left">

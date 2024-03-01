@@ -19,10 +19,8 @@ import { Button } from "@/components/ui/button";
 function DeleteURL(
   {
     urlObj,
-    userState,
   }: {
     urlObj: any;
-    userState: UserState;
   },
   ref: any
 ) {
