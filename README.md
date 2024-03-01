@@ -1,6 +1,6 @@
 # shorte.live
 
-- An open-source url-shortner.
+- An open-source url-shortener.
 
 ## Info
 
@@ -31,22 +31,22 @@
      ```
 3. Setup Google Oauth keys
 
-   - Currently the service only have one primary means of authentication, and that is with Google OAuth. [Read in detail here](https://developers.google.com/identity/protocols/oauth2)
-   - You need to obtain your secret key and client id to make this work.
-     1. Login to your google console [here](https://console.cloud.google.com).
+   - Currently, the service only has one primary means of authentication, and that is with Google OAuth. [Read in detail here](https://developers.google.com/identity/protocols/oauth2)
+   - You need to obtain your secret key and client ID to make this work.
+     1. Login to your Google console [here](https://console.cloud.google.com).
      2. Create a new project [here](https://console.cloud.google.com/projectcreate).
      3. Open the API dashboard, and go to `OAuth consent screen` [here](https://console.cloud.google.com/apis/credentials/consent). Once there configure your screen, read more [here](https://developers.google.com/workspace/guides/configure-oauth-consent)
      4. Now navigate to `credentials` and create a new one.
         - add `http://localhost:3100` into `Authorized JavaScript origins`
         - add `http://localhost:3100/user/google/callback` into `Authorized redirect URIs`
         - Read more [here](https://developers.google.com/identity/protocols/oauth2/web-server#creatingcred)
-     5. Once done copy your `client id` and your `client secret`, and paste in your `api/.env` file for the vairable `GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET` and done.
+     5. Once done copy your `client id` and your `client secret`, and paste into your `api/.env` file for the variable `GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET` and done.
 
 4. Setup Local DB and Local Redis
 
    - You need `Docker Desktop` installed for this on your system. [check here](https://docs.docker.com/desktop/)
    - Once verified, open your `Docker Desktop` and keep it running in the background.
-   - Run the follwing command from the repo terminal
+   - Run the following command from the repo terminal
      ```
      docker-compose -f config/compose.yml up
      ```
@@ -72,5 +72,5 @@
 ## Note
 
 - You can reach out to me for discussion or help. (Please keep things professional and straight, don't waste my time)
-- Discord : `ivinayakg`
-- Email : `vinayak20029@gmail.com`
+- Discord: `ivinayakg`
+- Email: `vinayak20029@gmail.com`
