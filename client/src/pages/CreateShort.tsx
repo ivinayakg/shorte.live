@@ -35,7 +35,7 @@ function CreateShort() {
       };
 
       const res = await fetch.post("/url", requestData, {
-        headers: { Authorization: `Bearer ${userState.token}` },
+        withCredentials: true,
       });
       if (res.status !== 201) {
         throw new Error("Check again later");

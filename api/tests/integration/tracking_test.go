@@ -16,7 +16,8 @@ import (
 func TestURLRedirectTracking(t *testing.T) {
 	resp, err := RedirecthttpClient.Get(ServerURL + "/" + URLFixture.Short)
 	if err != nil {
-		t.Fatal(err)
+		t.Log(err)
+		t.Fail()
 	}
 
 	destinationURL := URLFixture.Destination
@@ -29,7 +30,8 @@ func TestURLRedirectTracking(t *testing.T) {
 	for result == nil {
 		err := helpers.CurrentDb.RedirectEvent.FindOne(context.Background(), bson.M{"url_id": URLFixture.ID}).Decode(&result)
 		if err != nil && err != mongo.ErrNoDocuments {
-			t.Fatal(err)
+			t.Log(err)
+			t.Fail()
 		}
 		time.Sleep(time.Second * 2)
 	}

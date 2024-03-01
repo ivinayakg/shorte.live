@@ -155,7 +155,7 @@ func ResolveURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	go func(r http.Request, url models.URL) {
+	go func(r *http.Request, url models.URL) {
 		userAgent := r.Header.Get("User-Agent")
 		ua := uasurfer.Parse(userAgent)
 
@@ -172,7 +172,7 @@ func ResolveURL(w http.ResponseWriter, r *http.Request) {
 		timestamp := time.Now().Unix()
 
 		helpers.Tracker.CaptureRedirectEvent(device, ip, os, referrer, urlId, timestamp)
-	}(*r, *url)
+	}(r, *url)
 
 	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 	http.Redirect(w, r, url.Destination, http.StatusMovedPermanently)

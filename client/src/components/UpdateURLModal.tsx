@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import { UserState } from "@/components/main-provider";
 import { forwardRef } from "react";
 import fetch from "@/utils/axios";
 import { useToast } from "@/components/ui/use-toast";
@@ -20,10 +19,8 @@ import { Input } from "@/components/ui/input";
 function UpdateURL(
   {
     urlObj,
-    userState,
   }: {
     urlObj: any;
-    userState: UserState;
   },
   ref: any
 ) {
@@ -55,7 +52,7 @@ function UpdateURL(
     }
 
     const res = await fetch.patch(`/url/${urlObj._id}`, request, {
-      headers: { Authorization: `Bearer ${userState.token}` },
+      withCredentials: true,
     });
     if (res.status === 204) {
       toast({
@@ -96,10 +93,7 @@ function UpdateURL(
               <Label className="text-left">
                 Custom Short - <i>{urlObj?.short}</i>
               </Label>
-              <Input
-                name="short"
-                className="col-span-3"
-              />
+              <Input name="short" className="col-span-3" />
             </div>
             <div className="grid grid-rows-2 items-center gap-4">
               <Label className="text-left">

@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import { UserState } from "@/components/main-provider";
 import { forwardRef } from "react";
 import fetch from "@/utils/axios";
 import { useToast } from "@/components/ui/use-toast";
@@ -19,10 +18,8 @@ import { Button } from "@/components/ui/button";
 function DeleteURL(
   {
     urlObj,
-    userState,
   }: {
     urlObj: any;
-    userState: UserState;
   },
   ref: any
 ) {
@@ -30,7 +27,7 @@ function DeleteURL(
   const { toast } = useToast();
   const deleteURLForm = async () => {
     const res = await fetch.delete(`/url/${urlObj._id}`, {
-      headers: { Authorization: `Bearer ${userState.token}` },
+      withCredentials: true,
     });
     if (res.status === 204) {
       toast({

@@ -14,7 +14,8 @@ import (
 func TestURLSystemAvailability(t *testing.T) {
 	req, err := http.NewRequest(http.MethodGet, ServerURL+"/system/available", nil)
 	if err != nil {
-		t.Fatal(err)
+		t.Log(err)
+		t.Fail()
 	}
 	testhelper.PutSystemUnderMaintenance(helpers.Redis, false)
 
@@ -22,7 +23,8 @@ func TestURLSystemAvailability(t *testing.T) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		t.Fatal(err)
+		t.Log(err)
+		t.Fail()
 	}
 
 	body := map[string]interface{}{}
@@ -36,7 +38,8 @@ func TestURLSystemAvailability(t *testing.T) {
 func TestURLSystemAvailabilityFail(t *testing.T) {
 	req, err := http.NewRequest(http.MethodGet, ServerURL+"/system/available", nil)
 	if err != nil {
-		t.Fatal(err)
+		t.Log(err)
+		t.Fail()
 	}
 
 	testhelper.PutSystemUnderMaintenance(helpers.Redis, true)
@@ -45,7 +48,8 @@ func TestURLSystemAvailabilityFail(t *testing.T) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		t.Fatal(err)
+		t.Log(err)
+		t.Fail()
 	}
 
 	body := map[string]interface{}{}
@@ -59,7 +63,8 @@ func TestURLSystemAvailabilityFail(t *testing.T) {
 func TestNotFound(t *testing.T) {
 	resp, err := RedirecthttpClient.Get(ServerURL + "/" + "something/random")
 	if err != nil {
-		t.Fatal(err)
+		t.Log(err)
+		t.Fail()
 	}
 
 	notFoundUrl := os.Getenv("UI_NOT_FOUND_URL")
@@ -71,7 +76,8 @@ func TestNotFound(t *testing.T) {
 func TestRedirectHome(t *testing.T) {
 	resp, err := RedirecthttpClient.Get(ServerURL + "/")
 	if err != nil {
-		t.Fatal(err)
+		t.Log(err)
+		t.Fail()
 	}
 
 	assert.Equal(t, resp.StatusCode, http.StatusSeeOther, "Excpected status code to be 303")

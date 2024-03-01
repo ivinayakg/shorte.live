@@ -3,6 +3,7 @@ package integration_tests
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"testing"
 
@@ -21,7 +22,8 @@ func TestGoogleLogin(t *testing.T) {
 
 	resp, err := httpClient.Get(ServerURL + "/user/sign_in_with_google")
 	if err != nil {
-		t.Fatal(err)
+		t.Log(err)
+		t.Fail()
 	}
 	assert.Equal(t, http.StatusFound, resp.StatusCode, "Expected status code to be 302")
 	assert.Contains(t, resp.Header.Get("Location"), "https://accounts.google.com/o/oauth2/auth", "Expected redirect to Google OAuth URL")
@@ -33,24 +35,27 @@ func TestSelfUser(t *testing.T) {
 	TestDb.User.FindOne(context.Background(), bson.M{"email": "test1@gmail.com"}).Decode(&user)
 
 	userJwt, _ := utils.CreateJWT(&user)
+	authCookie := utils.CreateAuthCookie(*userJwt)
 
 	req, err := http.NewRequest(http.MethodGet, ServerURL+"/user/self", nil)
 	if err != nil {
-		t.Fatal(err)
+		t.Log(err)
+		t.Fail()
 	}
-
-	req.Header.Add("Authorization", "Bearer "+*userJwt)
+	req.AddCookie(authCookie)
 
 	// Send the request using the default HTTP client
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		t.Fatal(err)
+		t.Log(err)
+		t.Fail()
 	}
 
 	body := map[string]interface{}{}
 
 	json.NewDecoder(resp.Body).Decode(&body)
+	fmt.Println(body)
 
 	assert.Equal(t, resp.StatusCode, http.StatusOK, "Expected status code to be 200")
 	assert.IsType(t, body["_id"], "string", "Expected _id to be a string")
@@ -60,16 +65,16 @@ func TestSelfUser(t *testing.T) {
 func TestSelfUserUnauthenticated(t *testing.T) {
 	req, err := http.NewRequest(http.MethodGet, ServerURL+"/user/self", nil)
 	if err != nil {
-		t.Fatal(err)
+		t.Log(err)
+		t.Fail()
 	}
-
-	req.Header.Add("Authorization", "Bearer hello")
 
 	// Send the request using the default HTTP client
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		t.Fatal(err)
+		t.Log(err)
+		t.Fail()
 	}
 
 	body := map[string]interface{}{}

@@ -20,13 +20,15 @@ var RedirecthttpClient = &http.Client{
 		return http.ErrUseLastResponse
 	},
 }
+
 var HttpClient = &http.Client{}
 
 // resolve url
 func TestURLResolve(t *testing.T) {
 	resp, err := RedirecthttpClient.Get(ServerURL + "/" + URLFixture.Short)
 	if err != nil {
-		t.Fatal(err)
+		t.Log(err)
+		t.Fail()
 	}
 
 	destinationURL := URLFixture.Destination
@@ -38,7 +40,8 @@ func TestURLResolve(t *testing.T) {
 func TestURLResolveNotFound(t *testing.T) {
 	resp, err := RedirecthttpClient.Get(ServerURL + "/random")
 	if err != nil {
-		t.Fatal(err)
+		t.Log(err)
+		t.Fail()
 	}
 
 	notFoundurl := os.Getenv("UI_NOT_FOUND_URL")
@@ -50,7 +53,8 @@ func TestURLResolveNotFound(t *testing.T) {
 func TestURLResolveExpired(t *testing.T) {
 	resp, err := RedirecthttpClient.Get(ServerURL + "/" + ExpiredURLFixture.Short)
 	if err != nil {
-		t.Fatal(err)
+		t.Log(err)
+		t.Fail()
 	}
 
 	notFoundurl := os.Getenv("UI_NOT_FOUND_URL")
@@ -62,14 +66,16 @@ func TestURLResolveExpired(t *testing.T) {
 // test get user urls
 func TestGetUserURLs(t *testing.T) {
 	userJwt, _ := utils.CreateJWT(&UserFixture1)
+	authCookie := utils.CreateAuthCookie(*userJwt)
 
 	req, _ := http.NewRequest(http.MethodGet, ServerURL+"/url/all", nil)
 
-	req.Header.Add("Authorization", "Bearer "+*userJwt)
+	req.AddCookie(authCookie)
 
 	resp, err := HttpClient.Do(req)
 	if err != nil {
-		t.Fatal(err)
+		t.Log(err)
+		t.Fail()
 	}
 
 	respBody := []map[string]interface{}{}
@@ -93,14 +99,16 @@ func TestCreateShortedUrl(t *testing.T) {
 	payloadJSON, _ := json.Marshal(payloadData)
 
 	userJwt, _ := utils.CreateJWT(&UserFixture1)
+	authCookie := utils.CreateAuthCookie(*userJwt)
 
 	req, _ := http.NewRequest(http.MethodPost, ServerURL+"/url", bytes.NewBuffer(payloadJSON))
 
-	req.Header.Add("Authorization", "Bearer "+*userJwt)
+	req.AddCookie(authCookie)
 
 	resp, err := HttpClient.Do(req)
 	if err != nil {
-		t.Fatal(err)
+		t.Log(err)
+		t.Fail()
 	}
 
 	respBody := map[string]interface{}{}
@@ -124,14 +132,16 @@ func TestCreateShortedUrlWithInvalidUrl(t *testing.T) {
 	payloadJSON, _ := json.Marshal(payloadData)
 
 	userJwt, _ := utils.CreateJWT(&UserFixture1)
+	authCookie := utils.CreateAuthCookie(*userJwt)
 
 	req, _ := http.NewRequest(http.MethodPost, ServerURL+"/url", bytes.NewBuffer(payloadJSON))
 
-	req.Header.Add("Authorization", "Bearer "+*userJwt)
+	req.AddCookie(authCookie)
 
 	resp, err := HttpClient.Do(req)
 	if err != nil {
-		t.Fatal(err)
+		t.Log(err)
+		t.Fail()
 	}
 
 	respBody := map[string]interface{}{}
@@ -157,14 +167,16 @@ func TestCreateShortedUrlWithInvalidUrl2(t *testing.T) {
 	payloadJSON, _ := json.Marshal(payloadData)
 
 	userJwt, _ := utils.CreateJWT(&UserFixture1)
+	authCookie := utils.CreateAuthCookie(*userJwt)
 
 	req, _ := http.NewRequest(http.MethodPost, ServerURL+"/url", bytes.NewBuffer(payloadJSON))
 
-	req.Header.Add("Authorization", "Bearer "+*userJwt)
+	req.AddCookie(authCookie)
 
 	resp, err := HttpClient.Do(req)
 	if err != nil {
-		t.Fatal(err)
+		t.Log(err)
+		t.Fail()
 	}
 
 	respBody := map[string]interface{}{}
@@ -187,14 +199,16 @@ func TestCreateShortedUrlWithPreoccupiedShort(t *testing.T) {
 	payloadJSON, _ := json.Marshal(payloadData)
 
 	userJwt, _ := utils.CreateJWT(&UserFixture1)
+	authCookie := utils.CreateAuthCookie(*userJwt)
 
 	req, _ := http.NewRequest(http.MethodPost, ServerURL+"/url", bytes.NewBuffer(payloadJSON))
 
-	req.Header.Add("Authorization", "Bearer "+*userJwt)
+	req.AddCookie(authCookie)
 
 	resp, err := HttpClient.Do(req)
 	if err != nil {
-		t.Fatal(err)
+		t.Log(err)
+		t.Fail()
 	}
 
 	respBody := map[string]interface{}{}
@@ -217,14 +231,16 @@ func TestCreateShortedUrlWithInvalidShort(t *testing.T) {
 	payloadJSON, _ := json.Marshal(payloadData)
 
 	userJwt, _ := utils.CreateJWT(&UserFixture1)
+	authCookie := utils.CreateAuthCookie(*userJwt)
 
 	req, _ := http.NewRequest(http.MethodPost, ServerURL+"/url", bytes.NewBuffer(payloadJSON))
 
-	req.Header.Add("Authorization", "Bearer "+*userJwt)
+	req.AddCookie(authCookie)
 
 	resp, err := HttpClient.Do(req)
 	if err != nil {
-		t.Fatal(err)
+		t.Log(err)
+		t.Fail()
 	}
 
 	respBody := map[string]interface{}{}
@@ -247,14 +263,16 @@ func TestCreateShortedUrlWithDuplicateShort(t *testing.T) {
 	payloadJSON, _ := json.Marshal(payloadData)
 
 	userJwt, _ := utils.CreateJWT(&UserFixture1)
+	authCookie := utils.CreateAuthCookie(*userJwt)
 
 	req, _ := http.NewRequest(http.MethodPost, ServerURL+"/url", bytes.NewBuffer(payloadJSON))
 
-	req.Header.Add("Authorization", "Bearer "+*userJwt)
+	req.AddCookie(authCookie)
 
 	resp, err := HttpClient.Do(req)
 	if err != nil {
-		t.Fatal(err)
+		t.Log(err)
+		t.Fail()
 	}
 
 	respBody := map[string]interface{}{}
@@ -276,14 +294,16 @@ func TestUpdateURL(t *testing.T) {
 	payloadJSON, _ := json.Marshal(payloadData)
 
 	userJwt, _ := utils.CreateJWT(&UserFixture1)
+	authCookie := utils.CreateAuthCookie(*userJwt)
 
 	req, _ := http.NewRequest(http.MethodPatch, ServerURL+"/url/"+URLFixture.ID.Hex(), bytes.NewBuffer(payloadJSON))
 
-	req.Header.Add("Authorization", "Bearer "+*userJwt)
+	req.AddCookie(authCookie)
 
 	resp, err := HttpClient.Do(req)
 	if err != nil {
-		t.Fatal(err)
+		t.Log(err)
+		t.Fail()
 	}
 
 	respBody := map[string]interface{}{}
@@ -306,14 +326,16 @@ func TestUpdateURLInvalidId(t *testing.T) {
 	payloadJSON, _ := json.Marshal(payloadData)
 
 	userJwt, _ := utils.CreateJWT(&UserFixture1)
+	authCookie := utils.CreateAuthCookie(*userJwt)
 
 	req, _ := http.NewRequest(http.MethodPatch, ServerURL+"/url/"+primitive.NewObjectID().Hex(), bytes.NewBuffer(payloadJSON))
 
-	req.Header.Add("Authorization", "Bearer "+*userJwt)
+	req.AddCookie(authCookie)
 
 	resp, err := HttpClient.Do(req)
 	if err != nil {
-		t.Fatal(err)
+		t.Log(err)
+		t.Fail()
 	}
 
 	respBody := map[string]interface{}{}
@@ -334,14 +356,16 @@ func TestUpdateURLUnauthorized(t *testing.T) {
 	payloadJSON, _ := json.Marshal(payloadData)
 
 	userJwt, _ := utils.CreateJWT(&UserFixture2)
+	authCookie := utils.CreateAuthCookie(*userJwt)
 
 	req, _ := http.NewRequest(http.MethodPatch, ServerURL+"/url/"+URLFixture.ID.Hex(), bytes.NewBuffer(payloadJSON))
 
-	req.Header.Add("Authorization", "Bearer "+*userJwt)
+	req.AddCookie(authCookie)
 
 	resp, err := HttpClient.Do(req)
 	if err != nil {
-		t.Fatal(err)
+		t.Log(err)
+		t.Fail()
 	}
 
 	respBody := map[string]interface{}{}
@@ -355,14 +379,16 @@ func TestUpdateURLUnauthorized(t *testing.T) {
 // delete url
 func TestDeleteURL(t *testing.T) {
 	userJwt, _ := utils.CreateJWT(&UserFixture1)
+	authCookie := utils.CreateAuthCookie(*userJwt)
 
 	req, _ := http.NewRequest(http.MethodDelete, ServerURL+"/url/"+ExpiredURLFixture.ID.Hex(), nil)
 
-	req.Header.Add("Authorization", "Bearer "+*userJwt)
+	req.AddCookie(authCookie)
 
 	resp, err := HttpClient.Do(req)
 	if err != nil {
-		t.Fatal(err)
+		t.Log(err)
+		t.Fail()
 	}
 
 	assert.Equal(t, resp.StatusCode, http.StatusNoContent, "Excpected status code to be 204")
@@ -370,14 +396,16 @@ func TestDeleteURL(t *testing.T) {
 
 func TestDeleteURLInvalidId(t *testing.T) {
 	userJwt, _ := utils.CreateJWT(&UserFixture1)
+	authCookie := utils.CreateAuthCookie(*userJwt)
 
 	req, _ := http.NewRequest(http.MethodDelete, ServerURL+"/url/"+primitive.NewObjectID().Hex(), nil)
 
-	req.Header.Add("Authorization", "Bearer "+*userJwt)
+	req.AddCookie(authCookie)
 
 	resp, err := HttpClient.Do(req)
 	if err != nil {
-		t.Fatal(err)
+		t.Log(err)
+		t.Fail()
 	}
 
 	var respBody map[string]interface{}
@@ -389,13 +417,15 @@ func TestDeleteURLInvalidId(t *testing.T) {
 
 func TestDeleteURLUnauthorized(t *testing.T) {
 	userJwt, _ := utils.CreateJWT(&UserFixture2)
+	authCookie := utils.CreateAuthCookie(*userJwt)
 	req, _ := http.NewRequest(http.MethodDelete, ServerURL+"/url/"+primitive.NewObjectID().Hex(), nil)
 
-	req.Header.Add("Authorization", "Bearer "+*userJwt)
+	req.AddCookie(authCookie)
 
 	resp, err := HttpClient.Do(req)
 	if err != nil {
-		t.Fatal(err)
+		t.Log(err)
+		t.Fail()
 	}
 
 	var respBody map[string]interface{}

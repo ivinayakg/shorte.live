@@ -9,6 +9,8 @@ import (
 	"time"
 )
 
+var ENV string
+
 type ErrorResponse struct {
 	Error string `json:"error"`
 }

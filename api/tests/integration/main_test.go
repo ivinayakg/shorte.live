@@ -57,6 +57,7 @@ func setupTests() func() {
 	helpers.CreateDBInstance()
 	helpers.RedisSetup()
 	helpers.SetupTracker(time.Second*2, 5, 0)
+	helpers.ENV = "test"
 
 	go helpers.Tracker.StartFlush()
 
