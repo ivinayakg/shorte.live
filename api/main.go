@@ -22,6 +22,8 @@ func setupRoutes(router *mux.Router) {
 	routes.URLResolveRoutes(router)
 	routes.URLRoutes(router.PathPrefix("/url").Subrouter())
 	router.HandleFunc("/system/available", controllers.SystemAvailable).Methods("GET")
+	router.NotFoundHandler = http.HandlerFunc(controllers.NotFound)
+	router.HandleFunc("/", controllers.RedirectHome).Methods("GET", "POST", "PATCH", "DELETE")
 }
 
 func main() {
@@ -45,6 +47,7 @@ func main() {
 	helpers.RedisSetup()
 	helpers.SetupTracker(time.Second*10, 200, 0)
 	r.Use(middleware.LogMW)
+	r.Use(middleware.OriginHandler)
 
 	go helpers.Tracker.StartFlush()
 
@@ -53,4 +56,5 @@ func main() {
 
 	fmt.Println("Starting the server on port " + PORT)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", PORT), routerProtected))
+
 }

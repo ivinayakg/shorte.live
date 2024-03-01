@@ -64,8 +64,8 @@ func GetSystemConfig(revalidateCache bool) *SystemConfig {
 	}
 }
 
-func SystemUnderMaintenance() bool {
-	systemConfig := GetSystemConfig(false)
+func SystemUnderMaintenance(revalidate bool) bool {
+	systemConfig := GetSystemConfig(revalidate)
 	if systemConfig == nil {
 		return false
 	}

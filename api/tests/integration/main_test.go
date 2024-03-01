@@ -3,6 +3,7 @@ package integration_tests
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
@@ -93,6 +94,8 @@ func setupRouter() *mux.Router {
 
 	// system routes
 	router.HandleFunc("/system/available", controllers.SystemAvailable).Methods("GET")
+	router.NotFoundHandler = http.HandlerFunc(controllers.NotFound)
+	router.HandleFunc("/", controllers.RedirectHome).Methods("GET", "POST", "PATCH", "DELETE")
 
 	return router
 }

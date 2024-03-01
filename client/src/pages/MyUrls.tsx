@@ -41,7 +41,7 @@ function MyUrls() {
       <DeleteURLModal urlObj={urlObj} userState={userState} ref={deleteRef} />
       <HeadingOne className="font-bold mb-3">Your URLs</HeadingOne>
       <div className="flex flex-col justify-center items-center gap-4">
-        {urlsData.map((url: any) => {
+        {urlsData?.map((url: any) => {
           const date = new Date(url.expiry * 1000);
           return (
             <URLCard

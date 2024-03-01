@@ -28,7 +28,7 @@ func Authentication(next http.Handler) http.Handler {
 		}
 		token := tokenHeader[1]
 
-		systemNotAvailable := helpers.SystemUnderMaintenance()
+		systemNotAvailable := helpers.SystemUnderMaintenance(false)
 		if systemNotAvailable {
 			error := fmt.Errorf("system is under maintenance")
 			helpers.SendJSONError(w, http.StatusServiceUnavailable, error.Error())

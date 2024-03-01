@@ -41,7 +41,7 @@ type UpdateURLRequest struct {
 func ShortenURL(w http.ResponseWriter, r *http.Request) {
 	userData := r.Context().Value(middleware.UserAuthKey).(*models.User)
 	body := new(ShortenURLRequest)
-	preoccupiedShorts := []string{"url", "user", "system"}
+	preoccupiedShorts := []string{"url", "user", "system", "shorte.live"}
 
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		helpers.SendJSONError(w, http.StatusBadRequest, err.Error())
@@ -99,7 +99,13 @@ func ResolveURL(w http.ResponseWriter, r *http.Request) {
 	urlExpiredOrNotFound := true
 	var err error
 
-	systemNotAvailable := helpers.SystemUnderMaintenance()
+	revalidateCache, err := strconv.ParseBool(r.URL.Query().Get("revalidate"))
+	if err != nil {
+		fmt.Println("Error:", err)
+		revalidateCache = false
+	}
+
+	systemNotAvailable := helpers.SystemUnderMaintenance(revalidateCache)
 	if systemNotAvailable {
 		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 		http.Redirect(w, r, os.Getenv("FRONTEND_URL_MAINTENANCE"), http.StatusMovedPermanently)
@@ -119,12 +125,6 @@ func ResolveURL(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	urlShort := vars["short"]
 	currentTime := time.Now()
-
-	revalidateCache, err := strconv.ParseBool(r.URL.Query().Get("revalidate"))
-	if err != nil {
-		fmt.Println("Error:", err)
-		revalidateCache = false
-	}
 
 	err = helpers.Redis.GetJSON(urlShort, url)
 	if err != nil {
@@ -155,7 +155,7 @@ func ResolveURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	go func(r *http.Request, url models.URL) {
+	go func(r http.Request, url models.URL) {
 		userAgent := r.Header.Get("User-Agent")
 		ua := uasurfer.Parse(userAgent)
 
@@ -172,7 +172,7 @@ func ResolveURL(w http.ResponseWriter, r *http.Request) {
 		timestamp := time.Now().Unix()
 
 		helpers.Tracker.CaptureRedirectEvent(device, ip, os, referrer, urlId, timestamp)
-	}(r, *url)
+	}(*r, *url)
 
 	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 	http.Redirect(w, r, url.Destination, http.StatusMovedPermanently)

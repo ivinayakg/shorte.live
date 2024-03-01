@@ -100,7 +100,7 @@ func TimeRemaining(duration time.Duration) string {
 }
 
 func NotValidShortString(short *string) bool {
-	re := regexp.MustCompile(`[/@&?#]`)
+	re := regexp.MustCompile(`[/@&?#.]+`)
 	return re.MatchString(*short)
 }
 
