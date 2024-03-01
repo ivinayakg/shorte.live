@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import { UserState } from "@/components/main-provider";
 import { forwardRef } from "react";
 import fetch from "@/utils/axios";
 import { useToast } from "@/components/ui/use-toast";
