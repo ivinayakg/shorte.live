@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useMain } from "@/components/main-provider";
 import { useEffect, useRef, useState } from "react";
 import fetch from "@/utils/axios";
@@ -16,6 +16,7 @@ function MyUrls() {
   const deleteRef = useRef<HTMLButtonElement>();
   const { toast } = useToast();
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (userState.login && location.pathname === "/my-urls") {
@@ -32,6 +33,8 @@ function MyUrls() {
           });
         }
       })();
+    }else{
+      navigate("/")
     }
   }, [location.pathname, userState.login]);
 

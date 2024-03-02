@@ -119,3 +119,9 @@ func SelfUser(w http.ResponseWriter, r *http.Request) {
 	userData := r.Context().Value(middleware.UserAuthKey)
 	json.NewEncoder(w).Encode(userData)
 }
+
+func Logout(w http.ResponseWriter, r *http.Request) {
+	cookie := utils.RemoveAuthCookie()
+	http.SetCookie(w, cookie)
+	http.Redirect(w, r, os.Getenv("FRONTEND_URL"), http.StatusSeeOther)
+}

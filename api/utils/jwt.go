@@ -89,10 +89,11 @@ func RemoveAuthCookie() *http.Cookie {
 	return &http.Cookie{
 		Name:     cookieName,
 		Value:    "",
-		Expires:  time.Now().Add(-time.Hour),
+		MaxAge:   -1,
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
+		Path:     "/",
 	}
 }
 

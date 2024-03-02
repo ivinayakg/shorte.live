@@ -1,8 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/mode-toggle";
-import { useNavigate, Link, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useMain } from "@/components/main-provider";
-import { setInLocalStorage } from "@/utils/localstorage";
 import { AvatarImage, Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -10,6 +9,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { baseURL } from "@/utils/axios";
+import { GitHubLogoIcon } from "@radix-ui/react-icons";
 
 function MobileHeader({ links }: { links: JSX.Element[] }) {
   return (
@@ -19,13 +20,9 @@ function MobileHeader({ links }: { links: JSX.Element[] }) {
   );
 }
 
-function UserAvatar({
-  userPicture,
-  logout,
-}: {
-  userPicture: string;
-  logout: () => void;
-}) {
+function UserAvatar({ userPicture }: { userPicture: string }) {
+  const logoutURL = baseURL + "/user/logout";
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
@@ -36,9 +33,9 @@ function UserAvatar({
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuLabel className="max-w-fit">
-          <Button className="bg-transparent text-primary" onClick={logout}>
+          <Link to={logoutURL} className="bg-transparent text-primary">
             Logout
-          </Button>
+          </Link>
         </DropdownMenuLabel>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -47,16 +44,11 @@ function UserAvatar({
 
 function Header() {
   const loginWithGoogleUrl = import.meta.env.VITE_GOOGLE_SIGN_IN;
+  const githubRepoUrl = import.meta.env.VITE_GITHUB_REPO;
   const myUrl = "/my-urls";
   const homeUrl = "/";
   const { userState } = useMain();
-  const navigate = useNavigate();
   const location = useLocation();
-
-  const logout = () => {
-    setInLocalStorage("userToken", null);
-    navigate(0);
-  };
 
   const homeButtonClass =
     location.pathname === "/"
@@ -78,7 +70,7 @@ function Header() {
         My URLs
       </Button>
     </Link>,
-    <UserAvatar userPicture={userState.picture} logout={logout} />,
+    <UserAvatar userPicture={userState.picture} />,
   ];
 
   return (
@@ -88,6 +80,9 @@ function Header() {
           <h1 className="text-3xl">shorte.live</h1>
         </Link>
         <div className="flex justify-center items-center gap-4">
+          <Link to={githubRepoUrl}>
+            <GitHubLogoIcon className="inline-block ml-2 w-6 h-6" />
+          </Link>
           {userState.login ? (
             <div className="user-navbar-tablet hidden sm:flex justify-center items-center gap-4">
               {links}
@@ -95,7 +90,7 @@ function Header() {
           ) : (
             <Link to={loginWithGoogleUrl}>
               <Button className="gap-2">
-                Login With Google <img src="/google.svg" alt="" />
+                Login <img src="/google.svg" alt="" />
               </Button>
             </Link>
           )}

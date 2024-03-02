@@ -13,4 +13,5 @@ func UserRoutes(r *mux.Router) {
 	protectedR := r.NewRoute().Subrouter()
 	protectedR.Use(middleware.Authentication)
 	protectedR.HandleFunc("/self", controllers.SelfUser).Methods("GET")
+	protectedR.HandleFunc("/logout", controllers.Logout).Methods("GET")
 }
