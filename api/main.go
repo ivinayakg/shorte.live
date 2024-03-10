@@ -24,7 +24,9 @@ func setupRoutes(router *mux.Router) {
 	routes.URLRoutes(router.PathPrefix("/url").Subrouter())
 	router.HandleFunc("/system/available", controllers.SystemAvailable).Methods("GET")
 	router.NotFoundHandler = http.HandlerFunc(controllers.NotFound)
-	router.HandleFunc("/", controllers.RedirectHome).Methods("GET", "POST", "PATCH", "DELETE")
+	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "static/index.html")
+	}).Methods("GET", "POST", "PATCH", "DELETE")
 }
 
 func createRouter() *http.Handler {
