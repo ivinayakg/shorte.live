@@ -4,3 +4,5 @@ type env_type string
 
 const Dev env_type = "development"
 const Prod env_type = "prod"
+
+var PreoccupiedShorts = []string{"url", "user", "system", "shorte.live"}

@@ -88,7 +88,7 @@ func CallbackSignInWithGoogle(w http.ResponseWriter, r *http.Request) {
 		helpers.SendJSONError(w, http.StatusInternalServerError, "Internal Server Error")
 		return
 	}
-	fmt.Println(googleProfile)
+	// fmt.Println(googleProfile)
 
 	// Assuming User, UserSerializer, and other settings are defined elsewhere
 	user, err := models.GetUser(googleProfile["email"].(string))

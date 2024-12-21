@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/ivinayakg/shorte.live/api/constants"
@@ -15,7 +14,6 @@ import (
 	"github.com/ivinayakg/shorte.live/api/helpers"
 	"github.com/ivinayakg/shorte.live/api/middleware"
 	"github.com/ivinayakg/shorte.live/api/routes"
-	"github.com/ivinayakg/shorte.live/api/timescale"
 	"github.com/joho/godotenv"
 	"github.com/rs/cors"
 )
@@ -61,11 +59,11 @@ func main() {
 	database.CreateDBInstance()
 	helpers.RedisSetup()
 
-	if helpers.ENV != string(constants.Prod) {
-		timescale.SetupTimeScale()
-		helpers.SetupTracker(time.Second*10, 200, 0)
-		go helpers.Tracker.StartFlush()
-	}
+	// if helpers.ENV != string(constants.Prod) {
+	// 	timescale.SetupTimeScale()
+	// 	helpers.SetupTracker(time.Second*10, 200, 0)
+	// 	go helpers.Tracker.StartFlush()
+	// }
 
 	go func() {
 		if os.Getenv("ENV") == string(constants.Prod) {

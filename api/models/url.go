@@ -14,7 +14,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-func CreateURL(user *database.User, short string, destination string, expiry int64) (*database.URL, error) {
+func CreateURL(user *database.User, short string, destination string, expiry int64, temp bool) (*database.URL, error) {
 	url := new(database.URL)
 
 	if short != "" {
@@ -33,13 +33,16 @@ func CreateURL(user *database.User, short string, destination string, expiry int
 		short = uuid.New().String()[:10]
 	}
 
-	url.User = user.ID
+	if user != nil {
+		url.User = user.ID
+	}
 	url.Short = short
 	url.Destination = destination
 	url.Expiry = database.UnixTime(expiry)
 	// url.UpdateAt = database.UnixTime(time.Now().Unix())
 	url.CreatedAt = database.UnixTime(time.Now().Unix())
 	url.ID = primitive.NilObjectID
+	url.Temporary = temp
 	ctx := context.TODO()
 
 	res, err := database.CurrentDb.Url.InsertOne(ctx, url)

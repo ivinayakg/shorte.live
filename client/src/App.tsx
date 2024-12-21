@@ -9,10 +9,12 @@ import Header from "@/components/Header";
 import CreateShort from "@/pages/CreateShort";
 import NotFound from "@/pages/NotFound";
 import Maintenance from "@/pages/Maintenance";
+import Header2 from "@/components/v2/Header";
+import CreateShort2 from "@/pages/v2/CreateShort";
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: "/v1",
     element: <Main />,
     children: [
       {
@@ -20,17 +22,44 @@ const router = createBrowserRouter([
         element: <CreateShort />,
       },
       {
-        path: "/my-urls",
+        path: "my-urls",
         element: <MyUrls />,
       },
       {
-        path: "/not-found/redirect",
+        path: "not-found/redirect",
         element: <NotFound />,
       },
       {
-        path: "/maintenance",
+        path: "maintenance",
         element: <Maintenance />,
       },
+    ],
+  },
+  {
+    path: "/",
+    element: (
+      <MainProvider>
+        <Header2 />
+        <Outlet />
+      </MainProvider>
+    ),
+    children: [
+      {
+        path: "",
+        element: <CreateShort2 />,
+      },
+      // {
+      //   path: "/my-urls",
+      //   element: <MyUrls />,
+      // },
+      // {
+      //   path: "/not-found/redirect",
+      //   element: <NotFound />,
+      // },
+      // {
+      //   path: "/maintenance",
+      //   element: <Maintenance />,
+      // },
     ],
   },
   // {
@@ -41,10 +70,12 @@ const router = createBrowserRouter([
 
 function Main() {
   return (
-    <MainProvider>
-      <Header />
-      <Outlet />
-    </MainProvider>
+    <div className="p-4">
+      <MainProvider>
+        <Header />
+        <Outlet />
+      </MainProvider>
+    </div>
   );
 }
 

@@ -7,6 +7,7 @@ import (
 )
 
 func URLRoutes(r *mux.Router) {
+	r.HandleFunc("/temp", controllers.ShortenURLTemp).Methods("POST")
 	protectedR := r.NewRoute().Subrouter()
 	protectedR.Use(middleware.Authentication)
 	protectedR.HandleFunc("", controllers.ShortenURL).Methods("POST")

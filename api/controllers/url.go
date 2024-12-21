@@ -44,7 +44,6 @@ type UpdateURLRequest struct {
 func ShortenURL(w http.ResponseWriter, r *http.Request) {
 	userData := r.Context().Value(middleware.UserAuthKey).(*database.User)
 	body := new(ShortenURLRequest)
-	preoccupiedShorts := []string{"url", "user", "system", "shorte.live"}
 
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		helpers.SendJSONError(w, http.StatusBadRequest, err.Error())
@@ -69,7 +68,7 @@ func ShortenURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if body.CustomShort != "" && (helpers.ContainsString(&preoccupiedShorts, &body.CustomShort) || helpers.NotValidShortString(&body.CustomShort)) {
+	if body.CustomShort != "" && (helpers.ContainsString(&constants.PreoccupiedShorts, &body.CustomShort) || helpers.NotValidShortString(&body.CustomShort)) {
 		helpers.SendJSONError(w, http.StatusBadRequest, fmt.Errorf("can't use this short").Error())
 		return
 	}
@@ -81,7 +80,7 @@ func ShortenURL(w http.ResponseWriter, r *http.Request) {
 		body.Expiry = time.Now().Add(time.Hour * 48).Unix()
 	}
 
-	shortedURL, err := models.CreateURL(userData, body.CustomShort, body.Destination, body.Expiry)
+	shortedURL, err := models.CreateURL(userData, body.CustomShort, body.Destination, body.Expiry, false)
 	if err != nil {
 		helpers.SendJSONError(w, http.StatusBadRequest, err.Error())
 		return
@@ -159,6 +158,10 @@ func ResolveURL(w http.ResponseWriter, r *http.Request) {
 	}
 
 	go func(r *http.Request, url database.URL) {
+		if url.Temporary {
+			return
+		}
+
 		userAgent := r.Header.Get("User-Agent")
 		ua := uasurfer.Parse(userAgent)
 
@@ -313,4 +316,52 @@ func GetURLStats(w http.ResponseWriter, r *http.Request) {
 
 	helpers.SetHeaders("GET", w, http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]interface{}{"message": "successfully updated", "data": stats})
+}
+
+func ShortenURLTemp(w http.ResponseWriter, r *http.Request) {
+	body := new(ShortenURLRequest)
+
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		helpers.SendJSONError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	rateConfig := &helpers.URLLimit{Value: 5, Expiry: 1440}
+
+	info, err := helpers.RateLimit(r, "", rateConfig)
+	if err != nil {
+		helpers.SendJSONError(w, http.StatusTooManyRequests, fmt.Errorf("you have exhausted your quota for %v, %v to retry again", "Shorten URL", helpers.TimeRemaining(info)).Error())
+		return
+	}
+
+	// check if the input is an actual URL
+	if !govalidator.IsURL(body.Destination) {
+		helpers.SendJSONError(w, http.StatusBadRequest, fmt.Errorf("invalid url").Error())
+		return
+	}
+
+	// check for domain error
+	if !helpers.RemoverDomainError(body.Destination) {
+		helpers.SendJSONError(w, http.StatusBadRequest, fmt.Errorf("invalid url").Error())
+		return
+	}
+
+	// enforce https, SSL
+	body.Destination = helpers.EnforceHTTP(body.Destination)
+	body.Expiry = time.Now().Add(time.Hour * 48).Unix()
+
+	shortedURL, err := models.CreateURL(nil, "", body.Destination, body.Expiry, true)
+	if err != nil {
+		helpers.SendJSONError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	resp := ShortenURLReponse{
+		Destination: shortedURL.Destination,
+		CustomShort: shortedURL.Short,
+		Expiry:      int64(shortedURL.Expiry),
+	}
+
+	helpers.SetHeaders("post", w, http.StatusCreated)
+	json.NewEncoder(w).Encode(resp)
 }

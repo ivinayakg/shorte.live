@@ -44,6 +44,7 @@ type URL struct {
 	UpdateAt    UnixTime           `json:"update_at" bson:"update_at"`
 	CreatedAt   UnixTime           `json:"created_at" bson:"created_at"`
 	TotalClicks int64              `json:"total_clicks" bson:"total_clicks"`
+	Temporary   bool               `json:"temporary" bson:"temporary"`
 }
 
 type ClickEvent struct {

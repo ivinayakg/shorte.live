@@ -16,8 +16,11 @@ import {
 import fetch from "@/utils/axios";
 import { useToast } from "@/components/ui/use-toast";
 import { HeadingTwo } from "@/components/typography";
+import { useState } from "react";
 
 function CreateShort() {
+  const [tempShortCompleted, setTempShortCompleted] = useState(false);
+
   const { userState } = useMain();
   const loginWithGoogleUrl = import.meta.env.VITE_GOOGLE_SIGN_IN;
   const { toast } = useToast();
@@ -60,6 +63,43 @@ function CreateShort() {
     }
   };
 
+  const generateShortLinkTemp = async (e: any) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    try {
+      const requestData = {
+        destination: formData.get("destination"),
+      };
+
+      const res = await fetch.post("/url/temp", requestData, {
+        withCredentials: true,
+      });
+      if (res.status !== 201) {
+        if (res.status === 429) {
+          setTempShortCompleted(true);
+        }
+        throw new Error("Check again later");
+      }
+      const data = res.data;
+      navigator.clipboard.writeText(data.short);
+      toast({
+        title: "Short URL generated Successfully",
+        description: `The URL is copied to your clipboard, link -> ${data.short}`,
+        duration: 2000,
+      });
+
+      e.target.reset();
+    } catch (error: any) {
+      console.error(error);
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: <p>{error.response.data.error}</p>,
+        duration: 2000,
+      });
+    }
+  };
+
   return (
     <div className="w-full flex flex-col justify-center items-center gap-2 sm:gap-5 createshort">
       <HeadingTwo className="border-none sm:text-5xl">
@@ -67,7 +107,7 @@ function CreateShort() {
       </HeadingTwo>
       <form
         className="flex w-full max-w-5xl items-center space-x-2 flex-col gap-2 sm:flex-row"
-        onSubmit={generateShortLink}
+        onSubmit={userState.login ? generateShortLink : generateShortLinkTemp}
       >
         <Input
           className="w-full"
@@ -90,7 +130,7 @@ function CreateShort() {
           style={{ margin: "0" }}
           disabled={!userState.login}
         />
-        {userState.login ? (
+        {userState.login || !tempShortCompleted ? (
           <Button className="" type="submit">
             Generate
           </Button>
